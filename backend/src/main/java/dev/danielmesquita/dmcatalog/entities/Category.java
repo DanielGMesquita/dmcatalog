@@ -1,7 +1,7 @@
 package dev.danielmesquita.dmcatalog.entities;
 
 import jakarta.persistence.*;
-
+import java.time.Instant;
 import java.util.Objects;
 
 @Entity
@@ -15,8 +15,13 @@ public class Category {
   @Column(name = "name", nullable = false, unique = true)
   private String name;
 
-  public Category() {
-  }
+  @Column(columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
+  private Instant createdAt;
+
+  @Column(columnDefinition = "TIMESTAMP WITHOUT TIME ZONE")
+  private Instant updatedAt;
+
+  public Category() {}
 
   public Category(Long id, String name) {
     this.id = id;
