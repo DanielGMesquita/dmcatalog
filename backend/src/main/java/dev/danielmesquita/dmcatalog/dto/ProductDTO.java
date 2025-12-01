@@ -2,9 +2,7 @@ package dev.danielmesquita.dmcatalog.dto;
 
 import dev.danielmesquita.dmcatalog.entities.Product;
 import java.time.Instant;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 public class ProductDTO {
 
@@ -14,7 +12,7 @@ public class ProductDTO {
   private Double price;
   private String imgUrl;
   private Instant date;
-  private Set<CategoryDTO> categories = new HashSet<>();
+  private List<CategoryDTO> categories = new ArrayList<>();
 
   public ProductDTO() {}
 
@@ -89,7 +87,7 @@ public class ProductDTO {
     this.date = date;
   }
 
-  public Set<CategoryDTO> getCategories() {
+  public List<CategoryDTO> getCategories() {
     return categories;
   }
 
