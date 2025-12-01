@@ -44,6 +44,22 @@ public class Category {
     this.name = name;
   }
 
+  public Instant getCreatedAt() {
+    return createdAt;
+  }
+
+  public void setCreatedAt(Instant createdAt) {
+    this.createdAt = createdAt;
+  }
+
+  public Instant getUpdatedAt() {
+    return updatedAt;
+  }
+
+  public void setUpdatedAt(Instant updatedAt) {
+    this.updatedAt = updatedAt;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (!(o instanceof Category category)) return false;
