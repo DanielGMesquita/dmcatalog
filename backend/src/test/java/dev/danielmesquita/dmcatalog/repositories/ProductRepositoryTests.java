@@ -1,6 +1,7 @@
 package dev.danielmesquita.dmcatalog.repositories;
 
 import dev.danielmesquita.dmcatalog.entities.Product;
+import dev.danielmesquita.dmcatalog.utils.Factory;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -24,7 +25,7 @@ public class ProductRepositoryTests {
 
   @Test
   public void saveShouldPersistWithAutoIncrementWhenIdIsNull() {
-    Product product = repository.save(mockProduct);
+    Product product = repository.save(Factory.createProduct());
     assert (product.getId() != null);
   }
 
