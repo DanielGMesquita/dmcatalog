@@ -1,7 +1,6 @@
 package dev.danielmesquita.dmcatalog.entities;
 
 import jakarta.persistence.*;
-
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.Objects;
@@ -14,10 +13,12 @@ public class Product {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
+
   private String name;
 
   @Column(columnDefinition = "TEXT")
   private String description;
+
   private Double price;
   private String imgUrl;
 
@@ -25,15 +26,16 @@ public class Product {
   private Instant date;
 
   @ManyToMany
-  @JoinTable(name = "tb_product_category",
-            joinColumns = @JoinColumn(name = "product_id"),
-            inverseJoinColumns = @JoinColumn(name = "category_id"))
+  @JoinTable(
+      name = "tb_product_category",
+      joinColumns = @JoinColumn(name = "product_id"),
+      inverseJoinColumns = @JoinColumn(name = "category_id"))
   Set<Category> categories = new HashSet<>();
 
-  public Product() {
-  }
+  public Product() {}
 
-  public Product(Long id, String name, String description, Double price, String imgUrl, Instant date) {
+  public Product(
+      Long id, String name, String description, Double price, String imgUrl, Instant date) {
     this.id = id;
     this.name = name;
     this.description = description;

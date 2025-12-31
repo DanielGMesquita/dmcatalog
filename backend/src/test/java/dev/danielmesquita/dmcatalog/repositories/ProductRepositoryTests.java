@@ -20,8 +20,12 @@ public class ProductRepositoryTests {
     // Initialize test data if necessary
     existingId = 1L; // Assume this ID exists in the test database
     nonExistingId = 1000L; // Assume this ID does not exist
+  }
 
-    
+  @Test
+  public void saveShouldPersistWithAutoIncrementWhenIdIsNull() {
+    Product product = repository.save(mockProduct);
+    assert (product.getId() != null);
   }
 
   @Test
@@ -29,12 +33,12 @@ public class ProductRepositoryTests {
     repository.deleteById(existingId);
 
     Optional<Product> result = repository.findById(existingId);
-    assert(result.isEmpty());
+    assert (result.isEmpty());
   }
 
   @Test
   public void deleteShouldThrowResourceNotFoundExceptionWhenIdDoesNotExist() {
     boolean exists = repository.existsById(nonExistingId);
-    assert(!exists);
+    assert (!exists);
   }
 }

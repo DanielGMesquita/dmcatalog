@@ -62,8 +62,7 @@ public class CategoryService {
     }
     try {
       repository.deleteById(id);
-    }
-    catch (DataIntegrityViolationException e) {
+    } catch (DataIntegrityViolationException e) {
       throw new DatabaseException("Integrity violation");
     }
   }
