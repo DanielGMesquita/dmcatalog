@@ -24,9 +24,18 @@ public class ProductRepositoryTests {
   }
 
   @Test
-  public void saveShouldPersistWithAutoIncrementWhenIdIsNull() {
+  public void saveShouldPersistWithAutoIncrementWhenIdIsNotNull() {
     Product product = repository.save(Factory.createProduct());
     assert (product.getId() != null);
+  }
+
+  @Test
+  public void saveShouldPersistWithAutoIncrementWhenIdIsNull() {
+    Product product = repository.save(Factory.createProduct());
+    product.setId(null);
+
+    product = repository.save(product);
+    assert (product.getId() == null);
   }
 
   @Test
