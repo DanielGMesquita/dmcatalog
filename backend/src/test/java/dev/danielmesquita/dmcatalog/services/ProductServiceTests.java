@@ -15,6 +15,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -43,6 +44,15 @@ public class ProductServiceTests {
 
     Mockito.when(repository.save(Mockito.any())).thenReturn(page);
     Mockito.when(repository.findAll((Pageable) Mockito.any())).thenReturn(page);
+  }
+
+  @Test
+  public void findAllPagedShouldReturnPage() {
+    Assertions.assertDoesNotThrow(
+        () -> {
+          service.findAllPaged(PageRequest.of(0, 10));
+        });
+    Mockito.verify(repository).findAll((Pageable) Mockito.any());
   }
 
   @Test
