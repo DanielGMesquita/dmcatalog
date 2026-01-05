@@ -1,8 +1,12 @@
 package dev.danielmesquita.dmcatalog.services;
 
+import dev.danielmesquita.dmcatalog.entities.Product;
 import dev.danielmesquita.dmcatalog.repositories.ProductRepository;
 import dev.danielmesquita.dmcatalog.services.exceptions.DatabaseException;
 import dev.danielmesquita.dmcatalog.services.exceptions.ResourceNotFoundException;
+import dev.danielmesquita.dmcatalog.utils.Factory;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -10,6 +14,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith(SpringExtension.class)
@@ -23,10 +29,20 @@ public class ProductServiceTests {
 
   private long dependentId;
 
+  private long nonExistingId;
+
+  private Product product = new Product();
+
   @BeforeEach
   public void setUp() {
     existingId = 1L;
     dependentId = 2L;
+    nonExistingId = 1000L;
+    product = Factory.createProduct();
+    PageImpl<Product> page = new PageImpl<>(List.of(product));
+
+    Mockito.when(repository.save(Mockito.any())).thenReturn(page);
+    Mockito.when(repository.findAll((Pageable) Mockito.any())).thenReturn(page);
   }
 
   @Test
@@ -61,5 +77,26 @@ public class ProductServiceTests {
         });
     Mockito.verify(repository).existsById(dependentId);
     Mockito.verify(repository).deleteById(dependentId);
+  }
+
+  @Test
+  public void findByIdShouldReturnProductDTOWhenIdExists() {
+    Mockito.when(repository.findById(existingId)).thenReturn(Optional.of(product));
+    Assertions.assertDoesNotThrow(
+        () -> {
+          service.findById(existingId);
+        });
+    Mockito.verify(repository).findById(existingId);
+  }
+
+  @Test
+  public void findByIdShouldReturnEmptyWhenIdDoesNotExists() {
+    Mockito.when(repository.findById(nonExistingId)).thenReturn(Optional.empty());
+    Assertions.assertThrows(
+        ResourceNotFoundException.class,
+        () -> {
+          service.findById(existingId);
+        });
+    Mockito.verify(repository).findById(existingId);
   }
 }
