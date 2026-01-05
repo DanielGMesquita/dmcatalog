@@ -1,5 +1,6 @@
 package dev.danielmesquita.dmcatalog.services;
 
+import dev.danielmesquita.dmcatalog.dto.ProductDTO;
 import dev.danielmesquita.dmcatalog.entities.Product;
 import dev.danielmesquita.dmcatalog.repositories.ProductRepository;
 import dev.danielmesquita.dmcatalog.services.exceptions.DatabaseException;
@@ -34,16 +35,20 @@ public class ProductServiceTests {
 
   private Product product = new Product();
 
+  private ProductDTO productDTO = new ProductDTO();
+
   @BeforeEach
   public void setUp() {
     existingId = 1L;
     dependentId = 2L;
     nonExistingId = 1000L;
     product = Factory.createProduct();
+    productDTO = Factory.createProductDTO();
     PageImpl<Product> page = new PageImpl<>(List.of(product));
 
-    Mockito.when(repository.save(Mockito.any())).thenReturn(page);
+    Mockito.when(repository.save(Mockito.any())).thenReturn(product);
     Mockito.when(repository.findAll((Pageable) Mockito.any())).thenReturn(page);
+    Mockito.when(repository.getReferenceById(existingId)).thenReturn(product);
   }
 
   @Test
@@ -108,5 +113,14 @@ public class ProductServiceTests {
           service.findById(existingId);
         });
     Mockito.verify(repository).findById(existingId);
+  }
+
+  @Test
+  public void updateShouldReturnProductDTOWhenIdExists() {
+    Assertions.assertDoesNotThrow(
+        () -> {
+          service.update(existingId, productDTO);
+        });
+    Mockito.verify(repository).getReferenceById(existingId);
   }
 }
