@@ -51,16 +51,15 @@ public class ProductServiceTests {
     nonExistingId = 1000L;
     product = Factory.createProduct();
     productDTO = Factory.createProductDTO();
-    PageImpl<Product> page = new PageImpl<>(List.of(product));
 
-    Mockito.when(repository.save(Mockito.any())).thenReturn(product);
-    Mockito.when(repository.findAll((Pageable) Mockito.any())).thenReturn(page);
     Mockito.when(repository.getReferenceById(existingId)).thenReturn(product);
-    Mockito.when(repository.existsById(existingId)).thenReturn(true);
   }
 
   @Test
   public void findAllPagedShouldReturnPage() {
+    PageImpl<Product> page = new PageImpl<>(List.of(product));
+    Mockito.when(repository.findAll((Pageable) Mockito.any())).thenReturn(page);
+
     Assertions.assertDoesNotThrow(
         () -> {
           service.findAllPaged(PageRequest.of(0, 10));
@@ -70,6 +69,8 @@ public class ProductServiceTests {
 
   @Test
   public void saveShouldReturnProductDTO() {
+    Mockito.when(repository.save(Mockito.any())).thenReturn(product);
+
     Assertions.assertDoesNotThrow(
         () -> {
           service.insert(productDTO);
