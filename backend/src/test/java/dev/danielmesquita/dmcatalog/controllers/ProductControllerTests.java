@@ -6,6 +6,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import dev.danielmesquita.dmcatalog.dto.ProductDTO;
 import dev.danielmesquita.dmcatalog.services.ProductService;
+import dev.danielmesquita.dmcatalog.services.exceptions.ResourceNotFoundException;
 import dev.danielmesquita.dmcatalog.utils.Factory;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,12 +42,17 @@ public class ProductControllerTests {
 
   private PageImpl<ProductDTO> page;
 
+  private final Long existingId = 1L;
+  private final Long nonExistingId = 1000L;
+
   @BeforeEach
   public void setUp() {
     productDTO = Factory.createProductDTO();
     page = new PageImpl<>(List.of(productDTO));
 
     Mockito.when(service.findAllPaged(ArgumentMatchers.any())).thenReturn(page);
+    Mockito.when(service.findById(existingId)).thenReturn(productDTO);
+    Mockito.when(service.findById(nonExistingId)).thenThrow(ResourceNotFoundException.class);
   }
 
   @Test
@@ -60,5 +66,26 @@ public class ProductControllerTests {
 
     resultActions.andExpect(jsonPath("$.content[0].id").value(productDTO.getId()));
     resultActions.andExpect(jsonPath("$.content[0].name").value(productDTO.getName()));
+  }
+
+  @Test
+  @WithMockUser
+  public void findByIdShouldReturnProductWhenIdExists() throws Exception {
+    ResultActions resultActions =
+        mockMvc
+            .perform(get("/products/{id}", existingId).accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id").exists());
+
+    resultActions.andExpect(jsonPath("$.id").value(productDTO.getId()));
+    resultActions.andExpect(jsonPath("$.name").value(productDTO.getName()));
+  }
+
+  @Test
+  @WithMockUser
+  public void findByIdShouldReturnNotFoundWhenIdDoesNotExist() throws Exception {
+    mockMvc
+        .perform(get("/products/{id}", nonExistingId).accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isNotFound());
   }
 }
