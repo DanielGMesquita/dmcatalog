@@ -1,5 +1,6 @@
 package dev.danielmesquita.dmcatalog.services;
 
+import dev.danielmesquita.dmcatalog.dto.CategoryDTO;
 import dev.danielmesquita.dmcatalog.dto.ProductDTO;
 import dev.danielmesquita.dmcatalog.entities.Category;
 import dev.danielmesquita.dmcatalog.entities.Product;
@@ -56,7 +57,6 @@ public class ProductServiceTests {
     Mockito.when(repository.findAll((Pageable) Mockito.any())).thenReturn(page);
     Mockito.when(repository.getReferenceById(existingId)).thenReturn(product);
     Mockito.when(repository.existsById(existingId)).thenReturn(true);
-    Mockito.when(categoryRepository.getReferenceById(Mockito.anyLong())).thenReturn(new Category());
   }
 
   @Test
@@ -66,6 +66,30 @@ public class ProductServiceTests {
           service.findAllPaged(PageRequest.of(0, 10));
         });
     Mockito.verify(repository).findAll((Pageable) Mockito.any());
+  }
+
+  @Test
+  public void saveShouldReturnProductDTO() {
+    Assertions.assertDoesNotThrow(
+        () -> {
+          service.insert(productDTO);
+        });
+    Mockito.verify(repository).save(Mockito.any());
+  }
+
+  @Test
+  public void saveShouldReturnProductDTOWithProductWithMoreThanOneCategory() {
+    Category category1 = Factory.createCategory(1L, "Electronics");
+    Category category2 = Factory.createCategory(2L, "Books");
+    product.getCategories().add(category1);
+    product.getCategories().add(category2);
+    productDTO.getCategories().add(new CategoryDTO(category1));
+    productDTO.getCategories().add(new CategoryDTO(category2));
+    Assertions.assertDoesNotThrow(
+        () -> {
+          service.insert(productDTO);
+        });
+    Mockito.verify(repository).save(Mockito.any());
   }
 
   @Test
