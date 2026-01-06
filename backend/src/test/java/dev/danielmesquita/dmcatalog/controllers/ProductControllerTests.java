@@ -49,32 +49,16 @@ public class ProductControllerTests {
 
   private final Long existingId = 1L;
   private final Long nonExistingId = 1000L;
-  private final Long dependentId = 4L;
 
   @BeforeEach
   public void setUp() {
     productDTO = Factory.createProductDTO();
     page = new PageImpl<>(List.of(productDTO));
-
-    Mockito.when(service.findAllPaged(ArgumentMatchers.any())).thenReturn(page);
-
-    Mockito.when(service.insert(productDTO)).thenReturn(productDTO);
-
-    Mockito.when(service.findById(existingId)).thenReturn(productDTO);
-    Mockito.when(service.findById(nonExistingId)).thenThrow(ResourceNotFoundException.class);
-
-    Mockito.when(service.update(ArgumentMatchers.eq(existingId), ArgumentMatchers.any()))
-        .thenReturn(productDTO);
-    Mockito.when(service.update(ArgumentMatchers.eq(nonExistingId), ArgumentMatchers.any()))
-        .thenThrow(ResourceNotFoundException.class);
-
-    Mockito.doNothing().when(service).delete(existingId);
-    Mockito.doThrow(ResourceNotFoundException.class).when(service).delete(nonExistingId);
-    Mockito.doThrow(DatabaseException.class).when(service).delete(dependentId);
   }
 
   @Test
   public void insertShouldReturnProductDTOCreated() throws Exception {
+    Mockito.when(service.insert(productDTO)).thenReturn(productDTO);
     String jsonBody = objectMapper.writeValueAsString(productDTO);
 
     ResultActions resultActions =
@@ -93,6 +77,7 @@ public class ProductControllerTests {
 
   @Test
   public void findAllShouldReturnPage() throws Exception {
+    Mockito.when(service.findAllPaged(ArgumentMatchers.any())).thenReturn(page);
     ResultActions resultActions =
         mockMvc
             .perform(get("/products").accept(MediaType.APPLICATION_JSON))
@@ -105,6 +90,7 @@ public class ProductControllerTests {
 
   @Test
   public void findByIdShouldReturnProductWhenIdExists() throws Exception {
+    Mockito.when(service.findById(existingId)).thenReturn(productDTO);
     ResultActions resultActions =
         mockMvc
             .perform(get("/products/{id}", existingId).accept(MediaType.APPLICATION_JSON))
@@ -117,6 +103,7 @@ public class ProductControllerTests {
 
   @Test
   public void findByIdShouldReturnNotFoundWhenIdDoesNotExist() throws Exception {
+    Mockito.when(service.findById(nonExistingId)).thenThrow(ResourceNotFoundException.class);
     mockMvc
         .perform(get("/products/{id}", nonExistingId).accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isNotFound());
@@ -124,6 +111,9 @@ public class ProductControllerTests {
 
   @Test
   public void updateShouldReturnProductWhenIdExists() throws Exception {
+    Mockito.when(service.update(ArgumentMatchers.eq(existingId), ArgumentMatchers.any()))
+        .thenReturn(productDTO);
+
     String jsonBody = objectMapper.writeValueAsString(productDTO);
 
     ResultActions resultActions =
@@ -142,6 +132,9 @@ public class ProductControllerTests {
 
   @Test
   public void updateShouldThrowExceptionWhenIdDoesNotExists() throws Exception {
+    Mockito.when(service.update(ArgumentMatchers.eq(nonExistingId), ArgumentMatchers.any()))
+        .thenThrow(ResourceNotFoundException.class);
+
     String jsonBody = objectMapper.writeValueAsString(productDTO);
 
     mockMvc
@@ -155,6 +148,8 @@ public class ProductControllerTests {
 
   @Test
   public void deleteShouldReturnNoContentWhenIdExists() throws Exception {
+    Mockito.doNothing().when(service).delete(existingId);
+
     mockMvc
         .perform(delete("/products/{id}", existingId).accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isNoContent());
@@ -162,6 +157,8 @@ public class ProductControllerTests {
 
   @Test
   public void deleteShouldReturnNotFoundWhenIdDoesNotExist() throws Exception {
+    Mockito.doThrow(ResourceNotFoundException.class).when(service).delete(nonExistingId);
+
     mockMvc
         .perform(delete("/products/{id}", nonExistingId).accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isNotFound());
@@ -169,6 +166,9 @@ public class ProductControllerTests {
 
   @Test
   public void deleteShouldReturnBadRequestWhenDependentId() throws Exception {
+    Long dependentId = 4L;
+    Mockito.doThrow(DatabaseException.class).when(service).delete(dependentId);
+
     mockMvc
         .perform(delete("/products/{id}", dependentId).accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isBadRequest());
