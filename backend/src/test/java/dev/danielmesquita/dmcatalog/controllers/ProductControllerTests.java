@@ -112,4 +112,17 @@ public class ProductControllerTests {
     resultActions.andExpect(jsonPath("$.id").value(productDTO.getId()));
     resultActions.andExpect(jsonPath("$.name").value(productDTO.getName()));
   }
+
+  @Test
+  public void updateShouldThrowExceptionWhenIdDoesNotExists() throws Exception {
+    String jsonBody = objectMapper.writeValueAsString(productDTO);
+
+    mockMvc
+        .perform(
+            put("/products/{id}", nonExistingId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonBody)
+                .accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isNotFound());
+  }
 }
