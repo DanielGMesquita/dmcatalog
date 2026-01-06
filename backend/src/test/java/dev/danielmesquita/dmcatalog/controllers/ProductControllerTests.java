@@ -1,6 +1,7 @@
 package dev.danielmesquita.dmcatalog.controllers;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import dev.danielmesquita.dmcatalog.dto.ProductDTO;
@@ -49,6 +50,9 @@ public class ProductControllerTests {
   @Test
   @WithMockUser
   public void findAllShouldReturnPage() throws Exception {
-    mockMvc.perform(get("/products")).andExpect(status().isOk());
+    mockMvc
+        .perform(get("/products"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.content").exists());
   }
 }
