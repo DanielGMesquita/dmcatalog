@@ -1,13 +1,13 @@
 package dev.danielmesquita.dmcatalog.controllers;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.danielmesquita.dmcatalog.dto.ProductDTO;
 import dev.danielmesquita.dmcatalog.services.ProductService;
+import dev.danielmesquita.dmcatalog.services.exceptions.DatabaseException;
 import dev.danielmesquita.dmcatalog.services.exceptions.ResourceNotFoundException;
 import dev.danielmesquita.dmcatalog.utils.Factory;
 import java.util.List;
@@ -49,6 +49,7 @@ public class ProductControllerTests {
 
   private final Long existingId = 1L;
   private final Long nonExistingId = 1000L;
+  private final Long dependentId = 4L;
 
   @BeforeEach
   public void setUp() {
@@ -56,12 +57,38 @@ public class ProductControllerTests {
     page = new PageImpl<>(List.of(productDTO));
 
     Mockito.when(service.findAllPaged(ArgumentMatchers.any())).thenReturn(page);
+
+    Mockito.when(service.insert(productDTO)).thenReturn(productDTO);
+
     Mockito.when(service.findById(existingId)).thenReturn(productDTO);
     Mockito.when(service.findById(nonExistingId)).thenThrow(ResourceNotFoundException.class);
+
     Mockito.when(service.update(ArgumentMatchers.eq(existingId), ArgumentMatchers.any()))
         .thenReturn(productDTO);
     Mockito.when(service.update(ArgumentMatchers.eq(nonExistingId), ArgumentMatchers.any()))
         .thenThrow(ResourceNotFoundException.class);
+
+    Mockito.doNothing().when(service).delete(existingId);
+    Mockito.doThrow(ResourceNotFoundException.class).when(service).delete(nonExistingId);
+    Mockito.doThrow(DatabaseException.class).when(service).delete(dependentId);
+  }
+
+  @Test
+  public void insertShouldReturnProductDTOCreated() throws Exception {
+    String jsonBody = objectMapper.writeValueAsString(productDTO);
+
+    ResultActions resultActions =
+        mockMvc
+            .perform(
+                post("/products")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(jsonBody)
+                    .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.id").exists());
+
+    resultActions.andExpect(jsonPath("$.id").value(productDTO.getId()));
+    resultActions.andExpect(jsonPath("$.name").value(productDTO.getName()));
   }
 
   @Test
@@ -124,5 +151,26 @@ public class ProductControllerTests {
                 .content(jsonBody)
                 .accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isNotFound());
+  }
+
+  @Test
+  public void deleteShouldReturnNoContentWhenIdExists() throws Exception {
+    mockMvc
+        .perform(delete("/products/{id}", existingId).accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isNoContent());
+  }
+
+  @Test
+  public void deleteShouldReturnNotFoundWhenIdDoesNotExist() throws Exception {
+    mockMvc
+        .perform(delete("/products/{id}", nonExistingId).accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isNotFound());
+  }
+
+  @Test
+  public void deleteShouldReturnBadRequestWhenDependentId() throws Exception {
+    mockMvc
+        .perform(delete("/products/{id}", dependentId).accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().isBadRequest());
   }
 }
