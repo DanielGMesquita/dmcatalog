@@ -15,9 +15,11 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultActions;
 
 /**
  * Classe de teste para o controlador ProductController, utilizando MockMvc para simular requisições
@@ -50,9 +52,13 @@ public class ProductControllerTests {
   @Test
   @WithMockUser
   public void findAllShouldReturnPage() throws Exception {
-    mockMvc
-        .perform(get("/products"))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.content").exists());
+    ResultActions resultActions =
+        mockMvc
+            .perform(get("/products").accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.content").exists());
+
+    resultActions.andExpect(jsonPath("$.content[0].id").value(productDTO.getId()));
+    resultActions.andExpect(jsonPath("$.content[0].name").value(productDTO.getName()));
   }
 }
