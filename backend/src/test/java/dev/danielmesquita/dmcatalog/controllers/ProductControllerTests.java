@@ -1,9 +1,11 @@
 package dev.danielmesquita.dmcatalog.controllers;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.danielmesquita.dmcatalog.dto.ProductDTO;
 import dev.danielmesquita.dmcatalog.services.ProductService;
 import dev.danielmesquita.dmcatalog.services.exceptions.ResourceNotFoundException;
@@ -14,10 +16,10 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -25,9 +27,10 @@ import org.springframework.test.web.servlet.ResultActions;
 /**
  * Classe de teste para o controlador ProductController, utilizando MockMvc para simular requisições
  * HTTP e Mockito para mockar o serviço. WebMvcTest carrega o contexto somente para a camada web,
- * sem carregar o service e repository
+ * sem carregar o service e repository. AutoConfigureMockMvc configura o MockMvc para os testes.
  */
 @WebMvcTest(ProductController.class)
+@AutoConfigureMockMvc(addFilters = false)
 public class ProductControllerTests {
 
   /**
@@ -37,6 +40,8 @@ public class ProductControllerTests {
   @Autowired private MockMvc mockMvc;
 
   @MockitoBean private ProductService service;
+
+  @Autowired private ObjectMapper objectMapper;
 
   private ProductDTO productDTO;
 
@@ -53,10 +58,13 @@ public class ProductControllerTests {
     Mockito.when(service.findAllPaged(ArgumentMatchers.any())).thenReturn(page);
     Mockito.when(service.findById(existingId)).thenReturn(productDTO);
     Mockito.when(service.findById(nonExistingId)).thenThrow(ResourceNotFoundException.class);
+    Mockito.when(service.update(ArgumentMatchers.eq(existingId), ArgumentMatchers.any()))
+        .thenReturn(productDTO);
+    Mockito.when(service.update(ArgumentMatchers.eq(nonExistingId), ArgumentMatchers.any()))
+        .thenThrow(ResourceNotFoundException.class);
   }
 
   @Test
-  @WithMockUser
   public void findAllShouldReturnPage() throws Exception {
     ResultActions resultActions =
         mockMvc
@@ -69,7 +77,6 @@ public class ProductControllerTests {
   }
 
   @Test
-  @WithMockUser
   public void findByIdShouldReturnProductWhenIdExists() throws Exception {
     ResultActions resultActions =
         mockMvc
@@ -82,10 +89,27 @@ public class ProductControllerTests {
   }
 
   @Test
-  @WithMockUser
   public void findByIdShouldReturnNotFoundWhenIdDoesNotExist() throws Exception {
     mockMvc
         .perform(get("/products/{id}", nonExistingId).accept(MediaType.APPLICATION_JSON))
         .andExpect(status().isNotFound());
+  }
+
+  @Test
+  public void updateShouldReturnProductWhenIdExists() throws Exception {
+    String jsonBody = objectMapper.writeValueAsString(productDTO);
+
+    ResultActions resultActions =
+        mockMvc
+            .perform(
+                put("/products/{id}", existingId)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(jsonBody)
+                    .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.id").exists());
+
+    resultActions.andExpect(jsonPath("$.id").value(productDTO.getId()));
+    resultActions.andExpect(jsonPath("$.name").value(productDTO.getName()));
   }
 }
