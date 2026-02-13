@@ -19,13 +19,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-@ExtendWith(SpringExtension.class)
+@ExtendWith(MockitoExtension.class)
 public class ProductServiceTests {
 
   @InjectMocks private ProductService service;
@@ -51,8 +52,6 @@ public class ProductServiceTests {
     nonExistingId = 1000L;
     product = Factory.createProduct();
     productDTO = Factory.createProductDTO();
-
-    Mockito.when(repository.getReferenceById(existingId)).thenReturn(product);
   }
 
   @Test
@@ -152,7 +151,6 @@ public class ProductServiceTests {
 
   @Test
   public void findByIdShouldReturnEmptyWhenIdDoesNotExists() {
-    Mockito.when(repository.findById(nonExistingId)).thenReturn(Optional.empty());
     Assertions.assertThrows(
         ResourceNotFoundException.class,
         () -> {
@@ -163,6 +161,7 @@ public class ProductServiceTests {
 
   @Test
   public void updateShouldReturnProductDTOWhenIdExists() {
+    Mockito.when(repository.getReferenceById(existingId)).thenReturn(product);
     Assertions.assertDoesNotThrow(
         () -> {
           service.update(existingId, productDTO);
