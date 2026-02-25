@@ -1,5 +1,7 @@
 package dev.danielmesquita.dmcatalog.dto;
 
+import dev.danielmesquita.dmcatalog.entities.Role;
+
 import java.io.Serial;
 import java.io.Serializable;
 
@@ -13,9 +15,16 @@ public class RoleDTO implements Serializable {
   public RoleDTO() {}
 
   public RoleDTO(Long id, String authority) {
+    super();
     this.id = id;
     this.authority = authority;
   }
+
+    public RoleDTO(Role entity) {
+      super();
+      id = entity.getId();
+      authority = entity.getAuthority();
+    }
 
   public Long getId() {
     return id;
