@@ -1,8 +1,11 @@
 package dev.danielmesquita.dmcatalog.dto;
 
 import dev.danielmesquita.dmcatalog.entities.Product;
+
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 public class ProductDTO {
 
@@ -14,10 +17,11 @@ public class ProductDTO {
   private Instant date;
   private List<CategoryDTO> categories = new ArrayList<>();
 
-  public ProductDTO() {}
+  public ProductDTO() {
+  }
 
   public ProductDTO(
-      Long id, String name, String description, Double price, String imgUrl, Instant date) {
+          Long id, String name, String description, Double price, String imgUrl, Instant date) {
     this.id = id;
     this.name = name;
     this.description = description;
@@ -27,7 +31,6 @@ public class ProductDTO {
   }
 
   public ProductDTO(Product entity) {
-    if (entity == null) return;
     this.id = entity.getId();
     this.name = entity.getName();
     this.description = entity.getDescription();
