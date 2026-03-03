@@ -1,7 +1,7 @@
 package dev.danielmesquita.dmcatalog.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import dev.danielmesquita.dmcatalog.dto.ProductDTO;
+import dev.danielmesquita.dmcatalog.dto.UserDTO;
 import dev.danielmesquita.dmcatalog.utils.Factory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,7 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
-public class ProductControllerIntegrationTest {
+public class UserControllerIntegrationTest {
 
   @Autowired
   private MockMvc mockMvc;
@@ -33,47 +33,46 @@ public class ProductControllerIntegrationTest {
 
   private Long existingId;
   private Long nonExistingId;
-  private Long countTotalProducts;
+  private Long countTotalUsers;
 
   @BeforeEach
   public void setUp() {
     existingId = 1L; // Assume this ID exists in the test database
     nonExistingId = 1000L; // Assume this ID does not exist
-    countTotalProducts = 25L; // Assume there are 25 products in total
+    countTotalUsers = 2L; // Assume there are 25 users in total
   }
 
   @Test
   @WithMockUser
   public void findAllShouldReturnSortedPageWhenSortByName() throws Exception {
-    ResultActions resultActions = mockMvc.perform(get("/products?page0&size=12&sort=name,asc")
+    ResultActions resultActions = mockMvc.perform(get("/users?page0&size=12&sort=firstName,asc")
             .accept(MediaType.APPLICATION_JSON));
 
     resultActions.andExpect(status().isOk());
     resultActions.andExpect(jsonPath("$.content").exists());
-    resultActions.andExpect(jsonPath("$.content[0].name").value("Macbook Pro"));
-    resultActions.andExpect(jsonPath("$.content[1].name").value("PC Gamer"));
-    resultActions.andExpect(jsonPath("$.content[2].name").value("PC Gamer Alfa"));
-    resultActions.andExpect(jsonPath("$.totalElements").value(countTotalProducts));
+    resultActions.andExpect(jsonPath("$.content[0].firstName").value("Alex"));
+    resultActions.andExpect(jsonPath("$.content[1].firstName").value("Maria"));
+    resultActions.andExpect(jsonPath("$.totalElements").value(countTotalUsers));
   }
 
   @Test
   @WithMockUser
-  public void findByIdShouldReturnProductWhenIdExists() throws Exception {
-    ResultActions resultActions = mockMvc.perform(get("/products/{id}", existingId)
+  public void findByIdShouldReturnUserWhenIdExists() throws Exception {
+    ResultActions resultActions = mockMvc.perform(get("/users/{id}", existingId)
             .accept(MediaType.APPLICATION_JSON));
 
     resultActions.andExpect(status().isOk());
     resultActions.andExpect(jsonPath("$.id").value(existingId));
-    resultActions.andExpect(jsonPath("$.name").value("The Lord of the Rings"));
+    resultActions.andExpect(jsonPath("$.firstName").value("Alex"));
   }
 
   @Test
   @WithMockUser
-  public void updateShouldReturnProductDTOWhenIdExists() throws Exception {
-    ProductDTO productDTO = Factory.createProductDTO();
-    String jsonBody = objectMapper.writeValueAsString(productDTO);
+  public void updateShouldReturnUserDTOWhenIdExists() throws Exception {
+    UserDTO userDTO = Factory.createUserDTO();
+    String jsonBody = objectMapper.writeValueAsString(userDTO);
 
-    ResultActions resultActions = mockMvc.perform(put("/products/{id}", existingId)
+    ResultActions resultActions = mockMvc.perform(put("/users/{id}", existingId)
             .contentType(MediaType.APPLICATION_JSON)
             .content(jsonBody)
             .accept(MediaType.APPLICATION_JSON)
@@ -81,16 +80,16 @@ public class ProductControllerIntegrationTest {
 
     resultActions.andExpect(status().isOk());
     resultActions.andExpect(jsonPath("$.id").value(existingId));
-    resultActions.andExpect(jsonPath("$.name").value(productDTO.getName()));
+    resultActions.andExpect(jsonPath("$.firstName").value(userDTO.getFirstName()));
   }
 
   @Test
   @WithMockUser
   public void updateShouldReturnNotFoundWhenIdDoesNotExist() throws Exception {
-    ProductDTO productDTO = Factory.createProductDTO();
-    String jsonBody = objectMapper.writeValueAsString(productDTO);
+    UserDTO userDTO = Factory.createUserDTO();
+    String jsonBody = objectMapper.writeValueAsString(userDTO);
 
-    ResultActions resultActions = mockMvc.perform(put("/products/{id}", nonExistingId)
+    ResultActions resultActions = mockMvc.perform(put("/users/{id}", nonExistingId)
             .contentType(MediaType.APPLICATION_JSON)
             .content(jsonBody)
             .accept(MediaType.APPLICATION_JSON)
