@@ -1,10 +1,8 @@
 package dev.danielmesquita.dmcatalog.services;
 
-import dev.danielmesquita.dmcatalog.dto.CategoryDTO;
 import dev.danielmesquita.dmcatalog.dto.UserDTO;
-import dev.danielmesquita.dmcatalog.entities.Category;
+import dev.danielmesquita.dmcatalog.dto.UserInsertDTO;
 import dev.danielmesquita.dmcatalog.entities.User;
-import dev.danielmesquita.dmcatalog.repositories.CategoryRepository;
 import dev.danielmesquita.dmcatalog.repositories.RoleRepository;
 import dev.danielmesquita.dmcatalog.repositories.UserRepository;
 import dev.danielmesquita.dmcatalog.services.exceptions.DatabaseException;
@@ -13,6 +11,7 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,10 +22,12 @@ import java.util.Optional;
 public class UserService {
   private final UserRepository repository;
   private final RoleRepository roleRepository;
+  private final BCryptPasswordEncoder passwordEncoder;
 
-  public UserService(UserRepository repository, RoleRepository roleRepository) {
+  public UserService(UserRepository repository, RoleRepository roleRepository, BCryptPasswordEncoder passwordEncoder) {
     this.repository = repository;
     this.roleRepository = roleRepository;
+    this.passwordEncoder = passwordEncoder;
   }
 
   @Transactional(readOnly = true)
@@ -43,9 +44,10 @@ public class UserService {
   }
 
   @Transactional
-  public UserDTO insert(UserDTO dto) {
+  public UserDTO insert(UserInsertDTO dto) {
     User entity = new User();
     copyDtoToEntity(dto, entity);
+    entity.setPassword(passwordEncoder.encode(dto.getPassword()));
     entity = repository.save(entity);
     return new UserDTO(entity);
   }

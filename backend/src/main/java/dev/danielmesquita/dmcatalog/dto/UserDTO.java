@@ -5,8 +5,8 @@ import dev.danielmesquita.dmcatalog.entities.User;
 import java.io.Serial;
 import java.io.Serializable;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class UserDTO implements Serializable {
   @Serial
@@ -17,9 +17,10 @@ public class UserDTO implements Serializable {
   private String lastName;
   private String email;
 
-  Set<RoleDTO> roles = new HashSet<>();
+  private Set<RoleDTO> roles = new HashSet<>();
 
-  public UserDTO() {}
+  public UserDTO() {
+  }
 
   public UserDTO(Long id, String firstName, String lastName, String email) {
     this.id = id;
@@ -70,5 +71,18 @@ public class UserDTO implements Serializable {
 
   public Set<RoleDTO> getRoles() {
     return roles;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    UserDTO that = (UserDTO) o;
+    return Objects.equals(id, that.id);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id);
   }
 }

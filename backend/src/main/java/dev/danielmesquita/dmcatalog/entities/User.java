@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
@@ -23,12 +24,13 @@ public class User implements Serializable {
 
   @ManyToMany(fetch = FetchType.EAGER)
   @JoinTable(
-      name = "tb_user_role",
-      joinColumns = @JoinColumn(name = "user_id"),
-      inverseJoinColumns = @JoinColumn(name = "role_id"))
-  private Set<Role> roles;
+          name = "tb_user_role",
+          joinColumns = @JoinColumn(name = "user_id"),
+          inverseJoinColumns = @JoinColumn(name = "role_id"))
+  private final Set<Role> roles = new HashSet<>();
 
-  public User() {}
+  public User() {
+  }
 
   public User(Long id, String firstName, String lastName, String email, String password) {
     this.id = id;
