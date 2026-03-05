@@ -1,6 +1,10 @@
 package dev.danielmesquita.dmcatalog.dto;
 
 import dev.danielmesquita.dmcatalog.entities.Product;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.PastOrPresent;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -10,12 +14,19 @@ import java.util.Objects;
 public class ProductDTO {
 
   private Long id;
+
+  @Size(min = 3, max = 255, message = "Name must be between 3 and 255 characters")
+  @NotBlank(message = "Name must not be empty")
   private String name;
   private String description;
+
+  @Positive(message = "Price must be positive")
   private Double price;
   private String imgUrl;
+
+  @PastOrPresent(message = "Date must be in the past or present")
   private Instant date;
-  private List<CategoryDTO> categories = new ArrayList<>();
+  private final List<CategoryDTO> categories = new ArrayList<>();
 
   public ProductDTO() {
   }

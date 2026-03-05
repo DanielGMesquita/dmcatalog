@@ -1,6 +1,9 @@
 package dev.danielmesquita.dmcatalog.dto;
 
 import dev.danielmesquita.dmcatalog.entities.User;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -13,8 +16,13 @@ public class UserDTO implements Serializable {
   private static final long serialVersionUID = 1L;
 
   private Long id;
+
+  @NotBlank(message = "Name must not be empty")
   private String firstName;
   private String lastName;
+
+  @Email(message = "Email should be valid")
+  @NotEmpty(message = "Email must not be empty")
   private String email;
 
   private Set<RoleDTO> roles = new HashSet<>();
