@@ -157,6 +157,8 @@ public class UserServiceTests {
   public void updateShouldReturnUserDTOWhenIdExists() {
     Mockito.when(repository.getReferenceById(existingId)).thenReturn(user);
     Mockito.when(repository.save(Mockito.any())).thenReturn(user);
+    Mockito.when(roleRepository.getReferenceById(1L)).thenReturn(Factory.createRoleUser());
+    Mockito.when(roleRepository.getReferenceById(2L)).thenReturn(Factory.createRoleAdmin());
     Assertions.assertDoesNotThrow(
             () -> {
               service.update(existingId, userDTO);
