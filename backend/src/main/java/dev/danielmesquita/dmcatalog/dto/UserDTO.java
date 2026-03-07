@@ -4,6 +4,7 @@ import dev.danielmesquita.dmcatalog.entities.User;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Size;
 
 import java.io.Serial;
 import java.io.Serializable;
@@ -17,6 +18,7 @@ public class UserDTO implements Serializable {
 
   private Long id;
 
+  @Size(min = 3, max = 255, message = "Name must be between 3 and 255 characters")
   @NotBlank(message = "Name must not be empty")
   private String firstName;
   private String lastName;

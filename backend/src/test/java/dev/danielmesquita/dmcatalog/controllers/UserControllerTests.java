@@ -182,4 +182,34 @@ public class UserControllerTests {
             .perform(delete("/users/{id}", dependentId).accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isBadRequest());
   }
+
+  @Test
+  public void insertShouldThrowMethodArgumentNotValidExceptionWhenInvalidData() throws Exception {
+    UserInsertDTO invalidUserInsertDTO = userInsertDTO;
+    invalidUserInsertDTO.setFirstName("s");
+    String jsonBody = objectMapper.writeValueAsString(invalidUserInsertDTO);
+
+    mockMvc
+            .perform(
+                    post("/users")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(jsonBody)
+                            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isUnprocessableEntity());
+  }
+
+  @Test
+  public void updateShouldThrowMethodArgumentNotValidExceptionWhenInvalidData() throws Exception {
+    UserDTO invalidUserDTO = userDTO;
+    invalidUserDTO.setFirstName("s");
+    String jsonBody = objectMapper.writeValueAsString(invalidUserDTO);
+
+    mockMvc
+            .perform(
+                    put("/users/{id}", existingId)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(jsonBody)
+                            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isUnprocessableEntity());
+  }
 }
