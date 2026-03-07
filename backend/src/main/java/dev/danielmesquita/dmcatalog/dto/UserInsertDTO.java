@@ -1,9 +1,11 @@
 package dev.danielmesquita.dmcatalog.dto;
 
 import dev.danielmesquita.dmcatalog.entities.User;
+import dev.danielmesquita.dmcatalog.services.validation.UserInsertValid;
 
 import java.io.Serial;
 
+@UserInsertValid
 public class UserInsertDTO extends UserDTO {
 
   @Serial
