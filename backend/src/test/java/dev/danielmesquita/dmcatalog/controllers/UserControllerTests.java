@@ -3,6 +3,8 @@ package dev.danielmesquita.dmcatalog.controllers;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.danielmesquita.dmcatalog.dto.UserDTO;
 import dev.danielmesquita.dmcatalog.dto.UserInsertDTO;
+import dev.danielmesquita.dmcatalog.entities.User;
+import dev.danielmesquita.dmcatalog.repositories.UserRepository;
 import dev.danielmesquita.dmcatalog.services.UserService;
 import dev.danielmesquita.dmcatalog.services.exceptions.DatabaseException;
 import dev.danielmesquita.dmcatalog.services.exceptions.ResourceNotFoundException;
@@ -44,6 +46,14 @@ public class UserControllerTests {
 
   @MockitoBean
   private UserService service;
+
+  /**
+   * O UserInsertValidator depende do UserRepository para verificar se o e-mail já existe.
+   * Como @WebMvcTest não carrega a camada de repositório, precisamos mockar o UserRepository
+   * para que o Spring consiga injetar o validador no contexto.
+   */
+  @MockitoBean
+  private UserRepository userRepository;
 
   @Autowired
   private ObjectMapper objectMapper;
@@ -207,6 +217,22 @@ public class UserControllerTests {
     mockMvc
             .perform(
                     put("/users/{id}", existingId)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(jsonBody)
+                            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isUnprocessableEntity());
+  }
+
+  @Test
+  public void insertShouldThrowUnprocessableEntityWhenEmailAlreadyExists() throws Exception {
+    User existingUser = Factory.createUser();
+    Mockito.when(userRepository.findByEmail(userInsertDTO.getEmail())).thenReturn(existingUser);
+
+    String jsonBody = objectMapper.writeValueAsString(userInsertDTO);
+
+    mockMvc
+            .perform(
+                    post("/users")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(jsonBody)
                             .accept(MediaType.APPLICATION_JSON))
