@@ -192,4 +192,34 @@ public class ProductControllerTests {
             .perform(delete("/products/{id}", dependentId).accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isBadRequest());
   }
+
+  @Test
+  public void insertShouldReturnUnprocessableEntityWhenInvalidData() throws Exception {
+    ProductDTO invalidProductDTO = productDTO;
+    invalidProductDTO.setName("s");
+    String jsonBody = objectMapper.writeValueAsString(invalidProductDTO);
+
+    mockMvc
+            .perform(
+                    post("/products")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(jsonBody)
+                            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isUnprocessableEntity());
+  }
+
+  @Test
+  public void updateShouldReturnUnprocessableEntityWhenInvalidData() throws Exception {
+    ProductDTO invalidProductDTO = productDTO;
+    invalidProductDTO.setName("s");
+    String jsonBody = objectMapper.writeValueAsString(invalidProductDTO);
+
+    mockMvc
+            .perform(
+                    put("/products/{id}", existingId)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(jsonBody)
+                            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isUnprocessableEntity());
+  }
 }
