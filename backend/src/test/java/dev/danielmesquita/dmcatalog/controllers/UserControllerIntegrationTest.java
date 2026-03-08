@@ -2,6 +2,7 @@ package dev.danielmesquita.dmcatalog.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.danielmesquita.dmcatalog.dto.UserDTO;
+import dev.danielmesquita.dmcatalog.entities.User;
 import dev.danielmesquita.dmcatalog.utils.Factory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,11 +36,16 @@ public class UserControllerIntegrationTest {
   private Long nonExistingId;
   private Long countTotalUsers;
 
+  private User user;
+  private UserDTO userDTO;
+
   @BeforeEach
   public void setUp() {
     existingId = 1L; // Assume this ID exists in the test database
     nonExistingId = 1000L; // Assume this ID does not exist
     countTotalUsers = 2L; // Assume there are 25 users in total
+    user = Factory.createUser();
+    userDTO = new UserDTO(user);
   }
 
   @Test
@@ -69,7 +75,6 @@ public class UserControllerIntegrationTest {
   @Test
   @WithMockUser
   public void updateShouldReturnUserDTOWhenIdExists() throws Exception {
-    UserDTO userDTO = Factory.createUserDTO();
     String jsonBody = objectMapper.writeValueAsString(userDTO);
 
     ResultActions resultActions = mockMvc.perform(put("/users/{id}", existingId)
@@ -86,7 +91,6 @@ public class UserControllerIntegrationTest {
   @Test
   @WithMockUser
   public void updateShouldReturnNotFoundWhenIdDoesNotExist() throws Exception {
-    UserDTO userDTO = Factory.createUserDTO();
     String jsonBody = objectMapper.writeValueAsString(userDTO);
 
     ResultActions resultActions = mockMvc.perform(put("/users/{id}", nonExistingId)

@@ -3,6 +3,7 @@ package dev.danielmesquita.dmcatalog.controllers;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.danielmesquita.dmcatalog.dto.UserDTO;
 import dev.danielmesquita.dmcatalog.dto.UserInsertDTO;
+import dev.danielmesquita.dmcatalog.dto.UserUpdateDTO;
 import dev.danielmesquita.dmcatalog.entities.User;
 import dev.danielmesquita.dmcatalog.repositories.UserRepository;
 import dev.danielmesquita.dmcatalog.services.UserService;
@@ -58,9 +59,11 @@ public class UserControllerTests {
   @Autowired
   private ObjectMapper objectMapper;
 
-  private UserDTO userDTO = new UserDTO();
+  private UserDTO userDTO;
 
-  private UserInsertDTO userInsertDTO = new UserInsertDTO();
+  private UserInsertDTO userInsertDTO;
+
+  private UserUpdateDTO userUpdateDTO;
 
   private PageImpl<UserDTO> page;
 
@@ -69,10 +72,11 @@ public class UserControllerTests {
 
   @BeforeEach
   public void setUp() {
-    userDTO = Factory.createUserDTO();
+    User user = Factory.createUser();
+    userDTO = new UserDTO(user);
     page = new PageImpl<>(List.of(userDTO));
-    userDTO = Factory.createUserDTO();
-    userInsertDTO = Factory.createUserInsertDTO();
+    userInsertDTO = new UserInsertDTO(user);
+    userUpdateDTO = new UserUpdateDTO(user);
   }
 
   @Test
@@ -131,9 +135,9 @@ public class UserControllerTests {
   @Test
   public void updateShouldReturnUserWhenIdExists() throws Exception {
     Mockito.when(service.update(ArgumentMatchers.eq(existingId), ArgumentMatchers.any()))
-            .thenReturn(userDTO);
+            .thenReturn(userUpdateDTO);
 
-    String jsonBody = objectMapper.writeValueAsString(userDTO);
+    String jsonBody = objectMapper.writeValueAsString(userUpdateDTO);
 
     ResultActions resultActions =
             mockMvc
@@ -145,8 +149,8 @@ public class UserControllerTests {
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.id").exists());
 
-    resultActions.andExpect(jsonPath("$.id").value(userDTO.getId()));
-    resultActions.andExpect(jsonPath("$.firstName").value(userDTO.getFirstName()));
+    resultActions.andExpect(jsonPath("$.id").value(userUpdateDTO.getId()));
+    resultActions.andExpect(jsonPath("$.firstName").value(userUpdateDTO.getFirstName()));
   }
 
   @Test
@@ -233,6 +237,23 @@ public class UserControllerTests {
     mockMvc
             .perform(
                     post("/users")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(jsonBody)
+                            .accept(MediaType.APPLICATION_JSON))
+            .andExpect(status().isUnprocessableEntity());
+  }
+
+  @Test
+  public void updateShouldThrowUnprocessableEntityWhenEmailAlreadyExists() throws Exception {
+    User existingUser = Factory.createUser();
+
+    Mockito.when(userRepository.findByEmail(userUpdateDTO.getEmail())).thenReturn(existingUser);
+
+    String jsonBody = objectMapper.writeValueAsString(userInsertDTO);
+
+    mockMvc
+            .perform(
+                    put("/users/{id}", existingId)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(jsonBody)
                             .accept(MediaType.APPLICATION_JSON))
