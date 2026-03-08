@@ -3,7 +3,9 @@ package dev.danielmesquita.dmcatalog.services;
 import dev.danielmesquita.dmcatalog.dto.UserDTO;
 import dev.danielmesquita.dmcatalog.dto.UserInsertDTO;
 import dev.danielmesquita.dmcatalog.dto.UserUpdateDTO;
+import dev.danielmesquita.dmcatalog.entities.Role;
 import dev.danielmesquita.dmcatalog.entities.User;
+import dev.danielmesquita.dmcatalog.projections.UserDetailsProjection;
 import dev.danielmesquita.dmcatalog.repositories.RoleRepository;
 import dev.danielmesquita.dmcatalog.repositories.UserRepository;
 import dev.danielmesquita.dmcatalog.services.exceptions.DatabaseException;
@@ -12,23 +14,49 @@ import jakarta.persistence.EntityNotFoundException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
-public class UserService {
+public class UserService implements UserDetailsService {
   private final UserRepository repository;
   private final RoleRepository roleRepository;
-  private final BCryptPasswordEncoder passwordEncoder;
+  private final PasswordEncoder passwordEncoder;
 
-  public UserService(UserRepository repository, RoleRepository roleRepository, BCryptPasswordEncoder passwordEncoder) {
+  public UserService(UserRepository repository, RoleRepository roleRepository, PasswordEncoder passwordEncoder) {
     this.repository = repository;
     this.roleRepository = roleRepository;
     this.passwordEncoder = passwordEncoder;
+  }
+
+  @Override
+  public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    List<UserDetailsProjection> result = repository.findUserDetailsByEmail(username);
+    if (result.isEmpty()) {
+      throw new UsernameNotFoundException("User not found with email: " + username);
+    }
+    User user = new User();
+    user.setEmail(username);
+    user.setPassword(result.getFirst().getPassword());
+    result.stream()
+            .map(
+                    projection -> {
+                      Role role = new Role();
+                      role.setId(projection.getRoleId());
+                      role.setAuthority(projection.getAuthority());
+                      return role;
+                    })
+            .forEach(user::addRole);
+
+    return user;
   }
 
   @Transactional(readOnly = true)

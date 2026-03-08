@@ -1,16 +1,16 @@
 package dev.danielmesquita.dmcatalog.entities;
 
 import jakarta.persistence.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Table(name = "tb_user")
-public class User implements Serializable {
+public class User implements Serializable, UserDetails {
   @Serial
   private static final long serialVersionUID = 1L;
 
@@ -74,8 +74,39 @@ public class User implements Serializable {
     this.email = email;
   }
 
+  @Override
+  public Collection<? extends GrantedAuthority> getAuthorities() {
+    return List.of();
+  }
+
   public String getPassword() {
     return password;
+  }
+
+  @Override
+  public String getUsername() {
+    return email;
+  }
+
+  //TODO : Implementar os métodos de UserDetails e detalhes da conta de usuário
+  @Override
+  public boolean isAccountNonExpired() {
+    return true;
+  }
+
+  @Override
+  public boolean isAccountNonLocked() {
+    return true;
+  }
+
+  @Override
+  public boolean isCredentialsNonExpired() {
+    return true;
+  }
+
+  @Override
+  public boolean isEnabled() {
+    return UserDetails.super.isEnabled();
   }
 
   public void setPassword(String password) {
@@ -86,9 +117,20 @@ public class User implements Serializable {
     return roles;
   }
 
+  public void addRole(Role role) {
+    roles.add(role);
+  }
+
+  public boolean hasRole(String roleName) {
+    return roles.stream().anyMatch(role -> role.getAuthority().equals(roleName));
+  }
+
   @Override
   public boolean equals(Object o) {
-    if (!(o instanceof User user)) return false;
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+
+    User user = (User) o;
     return Objects.equals(id, user.id);
   }
 
