@@ -1,9 +1,6 @@
 package dev.danielmesquita.dmcatalog.utils;
 
 import dev.danielmesquita.dmcatalog.dto.ProductDTO;
-import dev.danielmesquita.dmcatalog.dto.RoleDTO;
-import dev.danielmesquita.dmcatalog.dto.UserDTO;
-import dev.danielmesquita.dmcatalog.dto.UserInsertDTO;
 import dev.danielmesquita.dmcatalog.entities.Category;
 import dev.danielmesquita.dmcatalog.entities.Product;
 import dev.danielmesquita.dmcatalog.entities.Role;
@@ -37,16 +34,6 @@ public class Factory {
     return new Role(2L, "ROLE_ADMIN");
   }
 
-  public static RoleDTO createRoleUserDTO() {
-    Role role = createRoleUser();
-    return new RoleDTO(role);
-  }
-
-  public static RoleDTO createRoleAdminDTO() {
-    Role role = createRoleAdmin();
-    return new RoleDTO(role);
-  }
-
   public static User createUser() {
     User user = new User();
     user.setId(1L);
@@ -57,15 +44,5 @@ public class Factory {
     user.getRoles().add(createRoleUser());
     user.getRoles().add(createRoleAdmin());
     return user;
-  }
-
-  public static UserDTO createUserDTO() {
-    User user = createUser();
-    return new UserDTO(user);
-  }
-
-  public static UserInsertDTO createUserInsertDTO() {
-    User user = createUser();
-    return new UserInsertDTO(user);
   }
 }

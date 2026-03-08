@@ -2,6 +2,7 @@ package dev.danielmesquita.dmcatalog.services;
 
 import dev.danielmesquita.dmcatalog.dto.UserDTO;
 import dev.danielmesquita.dmcatalog.dto.UserInsertDTO;
+import dev.danielmesquita.dmcatalog.dto.UserUpdateDTO;
 import dev.danielmesquita.dmcatalog.entities.User;
 import dev.danielmesquita.dmcatalog.repositories.RoleRepository;
 import dev.danielmesquita.dmcatalog.repositories.UserRepository;
@@ -49,9 +50,11 @@ public class UserServiceTests {
 
   private User user = new User();
 
-  private UserDTO userDTO = new UserDTO();
+  private UserDTO userDTO;
 
-  private UserInsertDTO userInsertDTO = new UserInsertDTO();
+  private UserInsertDTO userInsertDTO;
+
+  private UserUpdateDTO userUpdateDTO;
 
   @BeforeEach
   public void setUp() {
@@ -59,8 +62,9 @@ public class UserServiceTests {
     dependentId = 2L;
     nonExistingId = 1000L;
     user = Factory.createUser();
-    userDTO = Factory.createUserDTO();
-    userInsertDTO = Factory.createUserInsertDTO();
+    userDTO = new UserDTO(user);
+    userInsertDTO = new UserInsertDTO(user);
+    userUpdateDTO = new UserUpdateDTO(user);
   }
 
   @Test
@@ -161,7 +165,7 @@ public class UserServiceTests {
     Mockito.when(roleRepository.getReferenceById(2L)).thenReturn(Factory.createRoleAdmin());
     Assertions.assertDoesNotThrow(
             () -> {
-              service.update(existingId, userDTO);
+              service.update(existingId, userUpdateDTO);
             });
     Mockito.verify(repository).getReferenceById(existingId);
   }
@@ -173,7 +177,7 @@ public class UserServiceTests {
     Assertions.assertThrows(
             ResourceNotFoundException.class,
             () -> {
-              service.update(nonExistingId, userDTO);
+              service.update(nonExistingId, userUpdateDTO);
             });
     Mockito.verify(repository).getReferenceById(nonExistingId);
   }

@@ -2,6 +2,7 @@ package dev.danielmesquita.dmcatalog.services;
 
 import dev.danielmesquita.dmcatalog.dto.UserDTO;
 import dev.danielmesquita.dmcatalog.dto.UserInsertDTO;
+import dev.danielmesquita.dmcatalog.dto.UserUpdateDTO;
 import dev.danielmesquita.dmcatalog.entities.User;
 import dev.danielmesquita.dmcatalog.repositories.RoleRepository;
 import dev.danielmesquita.dmcatalog.repositories.UserRepository;
@@ -53,12 +54,12 @@ public class UserService {
   }
 
   @Transactional
-  public UserDTO update(Long id, UserDTO dto) {
+  public UserUpdateDTO update(Long id, UserUpdateDTO dto) {
     try {
       User entity = repository.getReferenceById(id);
       copyDtoToEntity(dto, entity);
       entity = repository.save(entity);
-      return new UserDTO(entity);
+      return new UserUpdateDTO(entity);
     } catch (EntityNotFoundException e) {
       throw new ResourceNotFoundException("Id not found " + id);
     }
