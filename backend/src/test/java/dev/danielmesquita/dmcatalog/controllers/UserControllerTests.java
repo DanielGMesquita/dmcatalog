@@ -246,14 +246,13 @@ public class UserControllerTests {
   @Test
   public void updateShouldThrowUnprocessableEntityWhenEmailAlreadyExists() throws Exception {
     User existingUser = Factory.createUser();
-
     Mockito.when(userRepository.findByEmail(userUpdateDTO.getEmail())).thenReturn(existingUser);
 
     String jsonBody = objectMapper.writeValueAsString(userInsertDTO);
 
     mockMvc
             .perform(
-                    put("/users/{id}", existingId)
+                    put("/users/{id}", nonExistingId)
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(jsonBody)
                             .accept(MediaType.APPLICATION_JSON))

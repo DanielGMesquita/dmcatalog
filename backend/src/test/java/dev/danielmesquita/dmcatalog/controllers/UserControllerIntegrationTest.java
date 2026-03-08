@@ -62,7 +62,7 @@ public class UserControllerIntegrationTest {
   }
 
   @Test
-  @WithMockUser
+  @WithMockUser(roles = "OPERATOR")
   public void findByIdShouldReturnUserWhenIdExists() throws Exception {
     ResultActions resultActions = mockMvc.perform(get("/users/{id}", existingId)
             .accept(MediaType.APPLICATION_JSON));
@@ -73,7 +73,7 @@ public class UserControllerIntegrationTest {
   }
 
   @Test
-  @WithMockUser
+  @WithMockUser(roles = "ADMIN")
   public void updateShouldReturnUserDTOWhenIdExists() throws Exception {
     String jsonBody = objectMapper.writeValueAsString(userDTO);
 
@@ -89,7 +89,7 @@ public class UserControllerIntegrationTest {
   }
 
   @Test
-  @WithMockUser
+  @WithMockUser(roles = "ADMIN")
   public void updateShouldReturnNotFoundWhenIdDoesNotExist() throws Exception {
     String jsonBody = objectMapper.writeValueAsString(userDTO);
 
