@@ -1,5 +1,6 @@
 package dev.danielmesquita.dmcatalog.entities;
 
+import dev.danielmesquita.dmcatalog.enums.RoleEnum;
 import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -121,8 +122,8 @@ public class User implements Serializable, UserDetails {
     roles.add(role);
   }
 
-  public boolean hasRole(String roleName) {
-    return roles.stream().anyMatch(role -> role.getAuthority().equals(roleName));
+  public boolean hasRole(RoleEnum role) {
+    return roles.stream().anyMatch(r -> r.getAuthority().equals(role.getAuthority()));
   }
 
   @Override

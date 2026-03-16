@@ -6,13 +6,14 @@ import dev.danielmesquita.dmcatalog.repositories.CategoryRepository;
 import dev.danielmesquita.dmcatalog.services.exceptions.DatabaseException;
 import dev.danielmesquita.dmcatalog.services.exceptions.ResourceNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
-import java.util.Optional;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 @Service
 public class CategoryService {
@@ -31,7 +32,7 @@ public class CategoryService {
   @Transactional(readOnly = true)
   public CategoryDTO findById(Long id) {
     Optional<Category> obj = repository.findById(id);
-    Category entity = obj.orElseThrow(() -> new RuntimeException("Category not found"));
+    Category entity = obj.orElseThrow(() -> new ResourceNotFoundException("Category not found"));
     return new CategoryDTO(entity);
   }
 
