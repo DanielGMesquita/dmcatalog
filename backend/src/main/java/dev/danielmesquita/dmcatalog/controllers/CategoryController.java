@@ -25,7 +25,7 @@ public class CategoryController {
     Page<CategoryDTO> list = service.findAllPaged(pageable);
     return ResponseEntity.ok().body(list);
   }
-
+  
   @GetMapping(value = "/{id}")
   public ResponseEntity<CategoryDTO> findById(@PathVariable Long id) {
     CategoryDTO dto = service.findById(id);

@@ -7,7 +7,6 @@ import com.nimbusds.jose.proc.SecurityContext;
 import dev.danielmesquita.dmcatalog.config.customgrant.CustomPasswordAuthenticationConverter;
 import dev.danielmesquita.dmcatalog.config.customgrant.CustomPasswordAuthenticationProvider;
 import dev.danielmesquita.dmcatalog.config.customgrant.CustomUserAuthorities;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -58,11 +57,13 @@ public class AuthorizationServerConfig {
   @Value("${security.jwt.duration}")
   private Integer jwtDurationSeconds;
 
-  @Autowired
-  private UserDetailsService userDetailsService;
+  private final UserDetailsService userDetailsService;
+  private final PasswordEncoder passwordEncoder;
 
-  @Autowired
-  private PasswordEncoder passwordEncoder;
+  public AuthorizationServerConfig(UserDetailsService userDetailsService, PasswordEncoder passwordEncoder) {
+    this.userDetailsService = userDetailsService;
+    this.passwordEncoder = passwordEncoder;
+  }
 
   @Bean
   @Order(2)

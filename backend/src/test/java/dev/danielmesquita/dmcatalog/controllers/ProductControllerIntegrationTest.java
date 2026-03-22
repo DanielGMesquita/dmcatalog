@@ -57,7 +57,7 @@ public class ProductControllerIntegrationTest {
   }
 
   @Test
-  @WithMockUser(roles = "OPERATOR")
+  @WithMockUser
   public void findByIdShouldReturnProductWhenIdExists() throws Exception {
     ResultActions resultActions = mockMvc.perform(get("/products/{id}", existingId)
             .accept(MediaType.APPLICATION_JSON));
