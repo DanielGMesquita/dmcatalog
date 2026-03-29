@@ -30,17 +30,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * Classe de teste para o controlador UserController, utilizando MockMvc para simular requisições
- * HTTP e Mockito para mockar o serviço. WebMvcTest carrega o contexto somente para a camada web,
- * sem carregar o service e repository. AutoConfigureMockMvc configura o MockMvc para os testes.
+ * Test class for the UserController, using MockMvc to simulate HTTP requests
+ * and Mockito to mock the service. WebMvcTest loads the context only for the web layer,
+ * without loading the service and repository. AutoConfigureMockMvc configures MockMvc for tests.
  */
 @WebMvcTest(UserController.class)
 @AutoConfigureMockMvc(addFilters = false)
 public class UserControllerTests {
 
   /**
-   * MockMvc é uma classe do Spring que permite simular requisições HTTP em testes de integração
-   * para controladores web.
+   * MockMvc is a Spring class that allows simulating HTTP requests in integration tests
+   * for web controllers.
    */
   @Autowired
   private MockMvc mockMvc;
@@ -49,9 +49,9 @@ public class UserControllerTests {
   private UserService service;
 
   /**
-   * O UserInsertValidator depende do UserRepository para verificar se o e-mail já existe.
-   * Como @WebMvcTest não carrega a camada de repositório, precisamos mockar o UserRepository
-   * para que o Spring consiga injetar o validador no contexto.
+   * UserInsertValidator depends on UserRepository to check if the e-mail already exists.
+   * Since @WebMvcTest does not load the repository layer, we need to mock UserRepository
+   * so that Spring can inject the validator into the context.
    */
   @MockitoBean
   private UserRepository userRepository;

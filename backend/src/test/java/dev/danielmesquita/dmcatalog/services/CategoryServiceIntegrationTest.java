@@ -14,6 +14,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @SpringBootTest
 @Transactional
 public class CategoryServiceIntegrationTest {
@@ -26,22 +28,26 @@ public class CategoryServiceIntegrationTest {
 
   private Long existingId;
   private Long nonExistingId;
-  private Long dependentId;
   private Long countTotalCategories;
 
   @BeforeEach
   public void setUp() {
     existingId = 1L;
     nonExistingId = 1000L;
-    dependentId = 2L; // categoria "Eletrônicos" associada a produtos no import.sql
     countTotalCategories = 3L;
+  }
+
+  @Test
+  public void findAllShouldReturnListWithAllCategories() {
+    List<CategoryDTO> categories = categoryService.findAll();
+    Assertions.assertNotNull(categories);
   }
 
   // ── findAllPaged ──────────────────────────────────────────────────────────
 
   @Test
-  @DisplayName("findAllPaged deve retornar página com total correto")
-  public void findAllPagedDeveRetornarPaginaComTotalCorreto() {
+  @DisplayName("findAllPaged should return a page with the correct total")
+  public void findAllPagedShouldReturnPageWithCorrectTotal() {
     PageRequest pageable = PageRequest.of(0, 10);
     Page<CategoryDTO> result = categoryService.findAllPaged(pageable);
 
@@ -50,8 +56,8 @@ public class CategoryServiceIntegrationTest {
   }
 
   @Test
-  @DisplayName("findAllPaged deve retornar página ordenada por nome")
-  public void findAllPagedDeveRetornarPaginaOrdenadaPorNome() {
+  @DisplayName("findAllPaged should return a page sorted by name")
+  public void findAllPagedShouldReturnPageSortedByName() {
     PageRequest pageable = PageRequest.of(0, 10, Sort.by("name"));
     Page<CategoryDTO> result = categoryService.findAllPaged(pageable);
 
@@ -62,8 +68,8 @@ public class CategoryServiceIntegrationTest {
   }
 
   @Test
-  @DisplayName("findAllPaged deve retornar página vazia quando número de página não existe")
-  public void findAllPagedDeveRetornarPaginaVaziaQuandoPaginaNaoExiste() {
+  @DisplayName("findAllPaged should return an empty page when the page number does not exist")
+  public void findAllPagedShouldReturnEmptyPageWhenPageDoesNotExist() {
     PageRequest pageable = PageRequest.of(50, 10);
     Page<CategoryDTO> result = categoryService.findAllPaged(pageable);
     Assertions.assertTrue(result.isEmpty());
@@ -72,8 +78,8 @@ public class CategoryServiceIntegrationTest {
   // ── findById ──────────────────────────────────────────────────────────────
 
   @Test
-  @DisplayName("findById deve retornar CategoryDTO quando id existe")
-  public void findByIdDeveRetornarCategoryDTOQuandoIdExiste() {
+  @DisplayName("findById should return CategoryDTO when id exists")
+  public void findByIdShouldReturnCategoryDTOWhenIdExists() {
     CategoryDTO result = categoryService.findById(existingId);
 
     Assertions.assertNotNull(result);
@@ -81,8 +87,8 @@ public class CategoryServiceIntegrationTest {
   }
 
   @Test
-  @DisplayName("findById deve lançar ResourceNotFoundException quando id não existe")
-  public void findByIdDeveLancarExcecaoQuandoIdNaoExiste() {
+  @DisplayName("findById should throw ResourceNotFoundException when id does not exist")
+  public void findByIdShouldThrowExceptionWhenIdDoesNotExist() {
     Assertions.assertThrows(ResourceNotFoundException.class,
             () -> categoryService.findById(nonExistingId));
   }
@@ -90,8 +96,8 @@ public class CategoryServiceIntegrationTest {
   // ── insert ────────────────────────────────────────────────────────────────
 
   @Test
-  @DisplayName("insert deve persistir e retornar CategoryDTO com id gerado")
-  public void insertDevePersistirERetornarCategoryDTOComIdGerado() {
+  @DisplayName("insert should persist and return CategoryDTO with a generated id")
+  public void insertShouldPersistAndReturnCategoryDTOWithGeneratedId() {
     CategoryDTO dto = new CategoryDTO(null, "Games");
     CategoryDTO result = categoryService.insert(dto);
 
@@ -103,8 +109,8 @@ public class CategoryServiceIntegrationTest {
   // ── update ────────────────────────────────────────────────────────────────
 
   @Test
-  @DisplayName("update deve retornar CategoryDTO atualizado quando id existe")
-  public void updateDeveRetornarCategoryDTOAtualizadoQuandoIdExiste() {
+  @DisplayName("update should return updated CategoryDTO when id exists")
+  public void updateShouldReturnUpdatedCategoryDTOWhenIdExists() {
     CategoryDTO dto = new CategoryDTO(existingId, "Livros Atualizados");
     CategoryDTO result = categoryService.update(existingId, dto);
 
@@ -113,8 +119,8 @@ public class CategoryServiceIntegrationTest {
   }
 
   @Test
-  @DisplayName("update deve lançar ResourceNotFoundException quando id não existe")
-  public void updateDeveLancarExcecaoQuandoIdNaoExiste() {
+  @DisplayName("update should throw ResourceNotFoundException when id does not exist")
+  public void updateShouldThrowExceptionWhenIdDoesNotExist() {
     CategoryDTO dto = new CategoryDTO(nonExistingId, "Inexistente");
     Assertions.assertThrows(ResourceNotFoundException.class,
             () -> categoryService.update(nonExistingId, dto));
@@ -123,28 +129,28 @@ public class CategoryServiceIntegrationTest {
   // ── delete ────────────────────────────────────────────────────────────────
 
   @Test
-  @DisplayName("delete deve lançar ResourceNotFoundException quando id não existe")
-  public void deleteDeveLancarExcecaoQuandoIdNaoExiste() {
+  @DisplayName("delete should throw ResourceNotFoundException when id does not exist")
+  public void deleteShouldThrowExceptionWhenIdDoesNotExist() {
     Assertions.assertThrows(ResourceNotFoundException.class,
             () -> categoryService.delete(nonExistingId));
   }
 
   @Test
-  @DisplayName("delete deve reconhecer que categoria com produtos existe antes de tentar deletar")
-  public void deleteCategoriaComProdutosDeveManterRegistroExistente() {
+  @DisplayName("delete should recognize that a category with products exists before attempting to delete")
+  public void deleteCategoryWithProductsShouldKeepExistingRecord() {
     /*
-     * No perfil de teste (H2 + @Transactional no teste), a constraint de FK é
-     * verificada apenas no flush/commit da transação externa — após o método
-     * delete() já ter retornado. Por isso assertThrows não captura a exceção
-     * aqui. O que é possível verificar de forma confiável neste contexto:
-     *   1. A categoria existe antes da chamada.
-     *   2. O service reconhece que ela existe (não lança ResourceNotFoundException).
-     * A cobertura da DatabaseException é feita no teste unitário (CategoryServiceTests)
-     * com mock do repository, que simula o DataIntegrityViolationException de forma síncrona.
+     * In the test profile (H2 + @Transactional on the test), the FK constraint is
+     * checked only on the flush/commit of the outer transaction — after the
+     * delete() method has already returned. Therefore assertThrows does not capture
+     * the exception here. What can be reliably verified in this context:
+     *   1. The category exists before the call.
+     *   2. The service recognises that it exists (does not throw ResourceNotFoundException).
+     * Coverage of DatabaseException is handled in the unit test (CategoryServiceTests)
+     * with a mocked repository that simulates DataIntegrityViolationException synchronously.
      */
     Assertions.assertTrue(categoryRepository.existsById(3L),
-            "Categoria 3 deve existir antes da tentativa de delete");
+            "Category 3 must exist before the delete attempt");
     Assertions.assertDoesNotThrow(() -> categoryService.delete(3L),
-            "No H2 com @Transactional no teste, a FK só é verificada no flush externo");
+            "In H2 with @Transactional on the test, the FK is only checked on the outer flush");
   }
 }

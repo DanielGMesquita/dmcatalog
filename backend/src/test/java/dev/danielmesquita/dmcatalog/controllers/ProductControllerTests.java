@@ -26,17 +26,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * Classe de teste para o controlador ProductController, utilizando MockMvc para simular requisições
- * HTTP e Mockito para mockar o serviço. WebMvcTest carrega o contexto somente para a camada web,
- * sem carregar o service e repository. AutoConfigureMockMvc configura o MockMvc para os testes.
+ * Test class for the ProductController, using MockMvc to simulate HTTP requests
+ * and Mockito to mock the service. WebMvcTest loads the context only for the web layer,
+ * without loading the service and repository. AutoConfigureMockMvc configures MockMvc for tests.
  */
 @WebMvcTest(ProductController.class)
 @AutoConfigureMockMvc(addFilters = false)
 public class ProductControllerTests {
 
   /**
-   * MockMvc é uma classe do Spring que permite simular requisições HTTP em testes de integração
-   * para controladores web.
+   * MockMvc is a Spring class that allows simulating HTTP requests in integration tests
+   * for web controllers.
    */
   @Autowired
   private MockMvc mockMvc;

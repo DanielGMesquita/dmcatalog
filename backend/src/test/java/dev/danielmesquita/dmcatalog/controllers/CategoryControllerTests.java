@@ -42,7 +42,6 @@ public class CategoryControllerTests {
 
   private final Long existingId = 1L;
   private final Long nonExistingId = 1000L;
-  private final Long dependentId = 4L;
 
   @BeforeEach
   public void setUp() {
@@ -53,8 +52,8 @@ public class CategoryControllerTests {
   // ── GET /categories ───────────────────────────────────────────────────────
 
   @Test
-  @DisplayName("findAll deve retornar página com categorias")
-  public void findAllDeveRetornarPaginaComCategorias() throws Exception {
+  @DisplayName("findAll should return a page with categories")
+  public void findAllShouldReturnPageWithCategories() throws Exception {
     Mockito.when(service.findAllPaged(ArgumentMatchers.any())).thenReturn(page);
 
     ResultActions result = mockMvc.perform(get("/categories")
@@ -69,8 +68,8 @@ public class CategoryControllerTests {
   // ── GET /categories/{id} ──────────────────────────────────────────────────
 
   @Test
-  @DisplayName("findById deve retornar CategoryDTO quando id existe")
-  public void findByIdDeveRetornarCategoryDTOQuandoIdExiste() throws Exception {
+  @DisplayName("findById should return CategoryDTO when id exists")
+  public void findByIdShouldReturnCategoryDTOWhenIdExists() throws Exception {
     Mockito.when(service.findById(existingId)).thenReturn(categoryDTO);
 
     ResultActions result = mockMvc.perform(get("/categories/{id}", existingId)
@@ -82,8 +81,8 @@ public class CategoryControllerTests {
   }
 
   @Test
-  @DisplayName("findById deve retornar 404 quando id não existe")
-  public void findByIdDeveRetornar404QuandoIdNaoExiste() throws Exception {
+  @DisplayName("findById should return 404 when id does not exist")
+  public void findByIdShouldReturn404WhenIdDoesNotExist() throws Exception {
     Mockito.when(service.findById(nonExistingId)).thenThrow(ResourceNotFoundException.class);
 
     mockMvc.perform(get("/categories/{id}", nonExistingId)
@@ -94,8 +93,8 @@ public class CategoryControllerTests {
   // ── POST /categories ──────────────────────────────────────────────────────
 
   @Test
-  @DisplayName("insert deve retornar 201 e CategoryDTO com Location header quando dados válidos")
-  public void insertDeveRetornar201ELocationHeaderQuandoDadosValidos() throws Exception {
+  @DisplayName("insert should return 201 and CategoryDTO with Location header when data is valid")
+  public void insertShouldReturn201AndLocationHeaderWhenDataIsValid() throws Exception {
     Mockito.when(service.insert(ArgumentMatchers.any())).thenReturn(categoryDTO);
     String jsonBody = objectMapper.writeValueAsString(categoryDTO);
 
@@ -113,8 +112,8 @@ public class CategoryControllerTests {
   // ── PUT /categories/{id} ──────────────────────────────────────────────────
 
   @Test
-  @DisplayName("update deve retornar CategoryDTO quando id existe")
-  public void updateDeveRetornarCategoryDTOQuandoIdExiste() throws Exception {
+  @DisplayName("update should return CategoryDTO when id exists")
+  public void updateShouldReturnCategoryDTOWhenIdExists() throws Exception {
     Mockito.when(service.update(ArgumentMatchers.eq(existingId), ArgumentMatchers.any()))
             .thenReturn(categoryDTO);
     String jsonBody = objectMapper.writeValueAsString(categoryDTO);
@@ -130,8 +129,8 @@ public class CategoryControllerTests {
   }
 
   @Test
-  @DisplayName("update deve retornar 404 quando id não existe")
-  public void updateDeveRetornar404QuandoIdNaoExiste() throws Exception {
+  @DisplayName("update should return 404 when id does not exist")
+  public void updateShouldReturn404WhenIdDoesNotExist() throws Exception {
     Mockito.when(service.update(ArgumentMatchers.eq(nonExistingId), ArgumentMatchers.any()))
             .thenThrow(ResourceNotFoundException.class);
     String jsonBody = objectMapper.writeValueAsString(categoryDTO);
@@ -146,8 +145,8 @@ public class CategoryControllerTests {
   // ── DELETE /categories/{id} ───────────────────────────────────────────────
 
   @Test
-  @DisplayName("delete deve retornar 204 quando id existe")
-  public void deleteDeveRetornar204QuandoIdExiste() throws Exception {
+  @DisplayName("delete should return 204 when id exists")
+  public void deleteShouldReturn204WhenIdExists() throws Exception {
     Mockito.doNothing().when(service).delete(existingId);
 
     mockMvc.perform(delete("/categories/{id}", existingId)
@@ -156,8 +155,8 @@ public class CategoryControllerTests {
   }
 
   @Test
-  @DisplayName("delete deve retornar 404 quando id não existe")
-  public void deleteDeveRetornar404QuandoIdNaoExiste() throws Exception {
+  @DisplayName("delete should return 404 when id does not exist")
+  public void deleteShouldReturn404WhenIdDoesNotExist() throws Exception {
     Mockito.doThrow(ResourceNotFoundException.class).when(service).delete(nonExistingId);
 
     mockMvc.perform(delete("/categories/{id}", nonExistingId)
@@ -166,8 +165,9 @@ public class CategoryControllerTests {
   }
 
   @Test
-  @DisplayName("delete deve retornar 400 quando id tem dependentes")
-  public void deleteDeveRetornar400QuandoIdTemDependentes() throws Exception {
+  @DisplayName("delete should return 400 when id has dependents")
+  public void deleteShouldReturn400WhenIdHasDependents() throws Exception {
+    Long dependentId = 4L;
     Mockito.doThrow(DatabaseException.class).when(service).delete(dependentId);
 
     mockMvc.perform(delete("/categories/{id}", dependentId)

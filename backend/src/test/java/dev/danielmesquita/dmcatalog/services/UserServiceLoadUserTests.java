@@ -67,8 +67,8 @@ public class UserServiceLoadUserTests {
   }
 
   @Test
-  @DisplayName("loadUserByUsername deve retornar UserDetails quando email existe")
-  public void loadUserByUsernameDeveRetornarUserDetailsQuandoEmailExiste() {
+  @DisplayName("loadUserByUsername should return UserDetails when email exists")
+  public void loadUserByUsernameShouldReturnUserDetailsWhenEmailExists() {
     Mockito.when(repository.findUserDetailsByEmail("alex@gmail.com"))
             .thenReturn(List.of(projection));
 
@@ -80,8 +80,8 @@ public class UserServiceLoadUserTests {
   }
 
   @Test
-  @DisplayName("loadUserByUsername deve lançar UsernameNotFoundException quando email não existe")
-  public void loadUserByUsernameDeveLancarExcecaoQuandoEmailNaoExiste() {
+  @DisplayName("loadUserByUsername should throw UsernameNotFoundException when email does not exist")
+  public void loadUserByUsernameShouldThrowExceptionWhenEmailDoesNotExist() {
     Mockito.when(repository.findUserDetailsByEmail("naoexiste@email.com"))
             .thenReturn(Collections.emptyList());
 
@@ -90,8 +90,8 @@ public class UserServiceLoadUserTests {
   }
 
   @Test
-  @DisplayName("loadUserByUsername deve carregar roles do usuário")
-  public void loadUserByUsernameDeveCarregarRolesDoUsuario() {
+  @DisplayName("loadUserByUsername should load the user's roles")
+  public void loadUserByUsernameShouldLoadUserRoles() {
     UserDetailsProjection op = new UserDetailsProjection() {
       @Override
       public String getUsername() {
@@ -141,7 +141,7 @@ public class UserServiceLoadUserTests {
     UserDetails result = service.loadUserByUsername("maria@gmail.com");
 
     Assertions.assertNotNull(result);
-    // User.getAuthorities() retorna List.of() — o que é coberto pela chamada sem erro
+    // User.getAuthorities() returns List.of() — which is covered by the call without error
     Assertions.assertEquals("maria@gmail.com", result.getUsername());
   }
 }

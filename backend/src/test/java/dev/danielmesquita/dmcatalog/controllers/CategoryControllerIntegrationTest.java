@@ -44,8 +44,8 @@ public class CategoryControllerIntegrationTest {
 
   @Test
   @WithMockUser
-  @DisplayName("findAll deve retornar página com total correto")
-  public void findAllDeveRetornarPaginaComTotalCorreto() throws Exception {
+  @DisplayName("findAll should return a page with the correct total")
+  public void findAllShouldReturnPageWithCorrectTotal() throws Exception {
     ResultActions result = mockMvc.perform(get("/categories")
             .accept(MediaType.APPLICATION_JSON));
 
@@ -56,8 +56,8 @@ public class CategoryControllerIntegrationTest {
 
   @Test
   @WithMockUser
-  @DisplayName("findAll deve retornar categorias ordenadas por nome quando sort=name,asc")
-  public void findAllDeveRetornarCategoriasOrdenadasPorNome() throws Exception {
+  @DisplayName("findAll should return categories sorted by name when sort=name,asc")
+  public void findAllShouldReturnCategoriesSortedByName() throws Exception {
     ResultActions result = mockMvc.perform(
             get("/categories?page=0&size=10&sort=name,asc")
                     .accept(MediaType.APPLICATION_JSON));
@@ -72,8 +72,8 @@ public class CategoryControllerIntegrationTest {
 
   @Test
   @WithMockUser
-  @DisplayName("findById deve retornar CategoryDTO quando id existe")
-  public void findByIdDeveRetornarCategoryDTOQuandoIdExiste() throws Exception {
+  @DisplayName("findById should return CategoryDTO when id exists")
+  public void findByIdShouldReturnCategoryDTOWhenIdExists() throws Exception {
     ResultActions result = mockMvc.perform(get("/categories/{id}", existingId)
             .accept(MediaType.APPLICATION_JSON));
 
@@ -84,8 +84,8 @@ public class CategoryControllerIntegrationTest {
 
   @Test
   @WithMockUser
-  @DisplayName("findById deve retornar 404 com body de erro quando id não existe")
-  public void findByIdDeveRetornar404ComBodyDeErroQuandoIdNaoExiste() throws Exception {
+  @DisplayName("findById should return 404 with error body when id does not exist")
+  public void findByIdShouldReturn404WithErrorBodyWhenIdDoesNotExist() throws Exception {
     ResultActions result = mockMvc.perform(get("/categories/{id}", nonExistingId)
             .accept(MediaType.APPLICATION_JSON));
 
@@ -99,8 +99,8 @@ public class CategoryControllerIntegrationTest {
 
   @Test
   @WithMockUser(roles = "ADMIN")
-  @DisplayName("insert deve retornar 201 com Location header e body quando dados válidos")
-  public void insertDeveRetornar201ComLocationEBodyQuandoDadosValidos() throws Exception {
+  @DisplayName("insert should return 201 with Location header and body when data is valid")
+  public void insertShouldReturn201WithLocationAndBodyWhenDataIsValid() throws Exception {
     CategoryDTO dto = new CategoryDTO(null, "Games");
     String jsonBody = objectMapper.writeValueAsString(dto);
 
@@ -118,8 +118,8 @@ public class CategoryControllerIntegrationTest {
 
   @Test
   @WithMockUser
-  @DisplayName("insert sem role ADMIN deve retornar 403")
-  public void insertSemRoleAdminDeveRetornar403() throws Exception {
+  @DisplayName("insert without ADMIN role should return 403")
+  public void insertWithoutAdminRoleShouldReturn403() throws Exception {
     CategoryDTO dto = new CategoryDTO(null, "Games");
     String jsonBody = objectMapper.writeValueAsString(dto);
 
@@ -135,8 +135,8 @@ public class CategoryControllerIntegrationTest {
 
   @Test
   @WithMockUser(roles = "ADMIN")
-  @DisplayName("update deve retornar CategoryDTO atualizado quando id existe")
-  public void updateDeveRetornarCategoryDTOAtualizadoQuandoIdExiste() throws Exception {
+  @DisplayName("update should return updated CategoryDTO when id exists")
+  public void updateShouldReturnUpdatedCategoryDTOWhenIdExists() throws Exception {
     CategoryDTO dto = new CategoryDTO(existingId, "Livros Atualizados");
     String jsonBody = objectMapper.writeValueAsString(dto);
 
@@ -153,8 +153,8 @@ public class CategoryControllerIntegrationTest {
 
   @Test
   @WithMockUser(roles = "ADMIN")
-  @DisplayName("update deve retornar 404 quando id não existe")
-  public void updateDeveRetornar404QuandoIdNaoExiste() throws Exception {
+  @DisplayName("update should return 404 when id does not exist")
+  public void updateShouldReturn404WhenIdDoesNotExist() throws Exception {
     CategoryDTO dto = new CategoryDTO(nonExistingId, "Inexistente");
     String jsonBody = objectMapper.writeValueAsString(dto);
 
@@ -170,8 +170,8 @@ public class CategoryControllerIntegrationTest {
 
   @Test
   @WithMockUser(roles = "ADMIN")
-  @DisplayName("delete deve retornar 404 quando id não existe")
-  public void deleteDeveRetornar404QuandoIdNaoExiste() throws Exception {
+  @DisplayName("delete should return 404 when id does not exist")
+  public void deleteShouldReturn404WhenIdDoesNotExist() throws Exception {
     mockMvc.perform(delete("/categories/{id}", nonExistingId)
                     .with(csrf()))
             .andExpect(status().isNotFound());
@@ -179,8 +179,8 @@ public class CategoryControllerIntegrationTest {
 
   @Test
   @WithMockUser
-  @DisplayName("delete sem role ADMIN deve retornar 403")
-  public void deleteSemRoleAdminDeveRetornar403() throws Exception {
+  @DisplayName("delete without ADMIN role should return 403")
+  public void deleteWithoutAdminRoleShouldReturn403() throws Exception {
     mockMvc.perform(delete("/categories/{id}", existingId)
                     .with(csrf()))
             .andExpect(status().isForbidden());

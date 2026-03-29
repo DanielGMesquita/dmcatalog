@@ -26,12 +26,12 @@ public class CategoryRepositoryTests {
   public void setUp() {
     existingId = 1L;
     nonExistingId = 1000L;
-    countTotalCategories = 3L; // import.sql insere 3 categorias
+    countTotalCategories = 3L; // import.sql inserts 3 categories
   }
 
   @Test
-  @DisplayName("save deve persistir com auto-increment quando id é nulo")
-  public void saveDevePersistirComAutoIncrementQuandoIdENulo() {
+  @DisplayName("save should persist with auto-increment when id is null")
+  public void saveShouldPersistWithAutoIncrementWhenIdIsNull() {
     Category category = new Category();
     category.setName("Nova Categoria");
 
@@ -42,43 +42,43 @@ public class CategoryRepositoryTests {
   }
 
   @Test
-  @DisplayName("findById deve retornar Optional não vazio quando id existe")
-  public void findByIdDeveRetornarOptionalNaoVazioQuandoIdExiste() {
+  @DisplayName("findById should return a non-empty Optional when id exists")
+  public void findByIdShouldReturnNonEmptyOptionalWhenIdExists() {
     Optional<Category> result = repository.findById(existingId);
     Assertions.assertTrue(result.isPresent());
   }
 
   @Test
-  @DisplayName("findById deve retornar Optional vazio quando id não existe")
-  public void findByIdDeveRetornarOptionalVazioQuandoIdNaoExiste() {
+  @DisplayName("findById should return an empty Optional when id does not exist")
+  public void findByIdShouldReturnEmptyOptionalWhenIdDoesNotExist() {
     Optional<Category> result = repository.findById(nonExistingId);
     Assertions.assertTrue(result.isEmpty());
   }
 
   @Test
-  @DisplayName("findAll paginado deve retornar todas as categorias")
-  public void findAllDeveRetornarTodasAsCategorias() {
+  @DisplayName("findAll paginated should return all categories")
+  public void findAllShouldReturnAllCategories() {
     Page<Category> result = repository.findAll(PageRequest.of(0, 10));
     Assertions.assertEquals(countTotalCategories, result.getTotalElements());
   }
 
   @Test
-  @DisplayName("delete deve remover objeto quando id existe")
-  public void deleteDeveRemoverObjetoQuandoIdExiste() {
+  @DisplayName("delete should remove the object when id exists")
+  public void deleteShouldRemoveObjectWhenIdExists() {
     repository.deleteById(existingId);
     Optional<Category> result = repository.findById(existingId);
     Assertions.assertTrue(result.isEmpty());
   }
 
   @Test
-  @DisplayName("existsById deve retornar false quando id não existe")
-  public void existsByIdDeveRetornarFalseQuandoIdNaoExiste() {
+  @DisplayName("existsById should return false when id does not exist")
+  public void existsByIdShouldReturnFalseWhenIdDoesNotExist() {
     Assertions.assertFalse(repository.existsById(nonExistingId));
   }
 
   @Test
-  @DisplayName("existsById deve retornar true quando id existe")
-  public void existsByIdDeveRetornarTrueQuandoIdExiste() {
+  @DisplayName("existsById should return true when id exists")
+  public void existsByIdShouldReturnTrueWhenIdExists() {
     Assertions.assertTrue(repository.existsById(existingId));
   }
 }

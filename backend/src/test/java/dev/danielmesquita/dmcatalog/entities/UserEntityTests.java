@@ -14,33 +14,33 @@ public class UserEntityTests {
 
   @BeforeEach
   public void setUp() {
-    user = Factory.createUser(); // tem ROLE_OPERATOR e ROLE_ADMIN
+    user = Factory.createUser(); // has ROLE_OPERATOR and ROLE_ADMIN
   }
 
   @Test
-  @DisplayName("hasRole deve retornar true quando usuário possui a role informada")
-  public void hasRoleDeveRetornarTrueQuandoUsuarioPossuiARole() {
+  @DisplayName("hasRole should return true when the user has the given role")
+  public void hasRoleShouldReturnTrueWhenUserHasRole() {
     assertTrue(user.hasRole(RoleEnum.ROLE_OPERATOR));
     assertTrue(user.hasRole(RoleEnum.ROLE_ADMIN));
   }
 
   @Test
-  @DisplayName("hasRole deve retornar false quando usuário não possui a role informada")
-  public void hasRoleDeveRetornarFalseQuandoUsuarioNaoPossuiARole() {
-    User userSemRole = new User();
-    userSemRole.setId(2L);
-    userSemRole.setFirstName("Test");
-    userSemRole.setLastName("User");
-    userSemRole.setEmail("test@test.com");
-    userSemRole.setPassword("pass");
-    // sem roles adicionadas
-    assertFalse(userSemRole.hasRole(RoleEnum.ROLE_ADMIN));
-    assertFalse(userSemRole.hasRole(RoleEnum.ROLE_OPERATOR));
+  @DisplayName("hasRole should return false when the user does not have the given role")
+  public void hasRoleShouldReturnFalseWhenUserDoesNotHaveRole() {
+    User userWithoutRole = new User();
+    userWithoutRole.setId(2L);
+    userWithoutRole.setFirstName("Test");
+    userWithoutRole.setLastName("User");
+    userWithoutRole.setEmail("test@test.com");
+    userWithoutRole.setPassword("pass");
+    // no roles added
+    assertFalse(userWithoutRole.hasRole(RoleEnum.ROLE_ADMIN));
+    assertFalse(userWithoutRole.hasRole(RoleEnum.ROLE_OPERATOR));
   }
 
   @Test
-  @DisplayName("RoleEnum deve retornar a authority correta para cada valor")
-  public void roleEnumDeveRetornarAuthorityCorreta() {
+  @DisplayName("RoleEnum should return the correct authority for each value")
+  public void roleEnumShouldReturnCorrectAuthority() {
     assertEquals("ROLE_ADMIN", RoleEnum.ROLE_ADMIN.getAuthority());
     assertEquals("ROLE_OPERATOR", RoleEnum.ROLE_OPERATOR.getAuthority());
   }

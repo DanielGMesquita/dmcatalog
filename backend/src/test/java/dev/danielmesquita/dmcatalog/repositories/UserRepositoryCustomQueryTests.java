@@ -23,15 +23,15 @@ public class UserRepositoryCustomQueryTests {
 
   @BeforeEach
   public void setUp() {
-    existingEmail = "alex@gmail.com";      // inserido no import.sql
+    existingEmail = "alex@gmail.com";      // inserted in import.sql
     nonExistingEmail = "naoexiste@test.com";
   }
 
   // ── findByEmail ───────────────────────────────────────────────────────────
 
   @Test
-  @DisplayName("findByEmail deve retornar User quando email existe")
-  public void findByEmailDeveRetornarUserQuandoEmailExiste() {
+  @DisplayName("findByEmail should return User when email exists")
+  public void findByEmailShouldReturnUserWhenEmailExists() {
     User result = repository.findByEmail(existingEmail);
 
     Assertions.assertNotNull(result);
@@ -39,15 +39,15 @@ public class UserRepositoryCustomQueryTests {
   }
 
   @Test
-  @DisplayName("findByEmail deve retornar null quando email não existe")
-  public void findByEmailDeveRetornarNullQuandoEmailNaoExiste() {
+  @DisplayName("findByEmail should return null when email does not exist")
+  public void findByEmailShouldReturnNullWhenEmailDoesNotExist() {
     User result = repository.findByEmail(nonExistingEmail);
     Assertions.assertNull(result);
   }
 
   @Test
-  @DisplayName("findByEmail deve retornar o usuário correto entre múltiplos usuários")
-  public void findByEmailDeveRetornarUsuarioCorretoEntreMultiplos() {
+  @DisplayName("findByEmail should return the correct user among multiple users")
+  public void findByEmailShouldReturnCorrectUserAmongMultiple() {
     User result = repository.findByEmail("maria@gmail.com");
 
     Assertions.assertNotNull(result);
@@ -57,8 +57,8 @@ public class UserRepositoryCustomQueryTests {
   // ── findUserDetailsByEmail ────────────────────────────────────────────────
 
   @Test
-  @DisplayName("findUserDetailsByEmail deve retornar projeção com dados quando email existe")
-  public void findUserDetailsByEmailDeveRetornarProjecaoQuandoEmailExiste() {
+  @DisplayName("findUserDetailsByEmail should return a projection with data when email exists")
+  public void findUserDetailsByEmailShouldReturnProjectionWhenEmailExists() {
     List<UserDetailsProjection> result = repository.findUserDetailsByEmail(existingEmail);
 
     Assertions.assertFalse(result.isEmpty());
@@ -69,16 +69,16 @@ public class UserRepositoryCustomQueryTests {
   }
 
   @Test
-  @DisplayName("findUserDetailsByEmail deve retornar lista vazia quando email não existe")
-  public void findUserDetailsByEmailDeveRetornarListaVaziaQuandoEmailNaoExiste() {
+  @DisplayName("findUserDetailsByEmail should return an empty list when email does not exist")
+  public void findUserDetailsByEmailShouldReturnEmptyListWhenEmailDoesNotExist() {
     List<UserDetailsProjection> result = repository.findUserDetailsByEmail(nonExistingEmail);
     Assertions.assertTrue(result.isEmpty());
   }
 
   @Test
-  @DisplayName("findUserDetailsByEmail deve retornar múltiplas roles quando usuário tem mais de uma")
-  public void findUserDetailsByEmailDeveRetornarMultiplasRolesQuandoUsuarioTemMaisDeUma() {
-    // maria@gmail.com tem ROLE_OPERATOR e ROLE_ADMIN no import.sql
+  @DisplayName("findUserDetailsByEmail should return multiple roles when user has more than one")
+  public void findUserDetailsByEmailShouldReturnMultipleRolesWhenUserHasMoreThanOne() {
+    // maria@gmail.com has ROLE_OPERATOR and ROLE_ADMIN in import.sql
     List<UserDetailsProjection> result = repository.findUserDetailsByEmail("maria@gmail.com");
 
     Assertions.assertEquals(2, result.size());
@@ -93,8 +93,8 @@ public class UserRepositoryCustomQueryTests {
   // ── findById ──────────────────────────────────────────────────────────────
 
   @Test
-  @DisplayName("findById deve retornar Optional não vazio quando id existe")
-  public void findByIdDeveRetornarOptionalNaoVazioQuandoIdExiste() {
+  @DisplayName("findById should return a non-empty Optional when id exists")
+  public void findByIdShouldReturnNonEmptyOptionalWhenIdExists() {
     Optional<User> result = repository.findById(1L);
     Assertions.assertTrue(result.isPresent());
     Assertions.assertEquals(existingEmail, result.get().getEmail());

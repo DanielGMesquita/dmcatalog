@@ -47,11 +47,21 @@ public class CategoryServiceTests {
     categoryDTO = new CategoryDTO(1L, "Livros");
   }
 
+  @Test
+  @DisplayName("findAll should return a return a list when called")
+  public void findAllShouldReturnAListOfCategories() {
+    List<Category> listOfCategories = List.of(category);
+    Mockito.when(repository.findAll()).thenReturn(listOfCategories);
+
+    Assertions.assertDoesNotThrow(() -> service.findAll());
+    Mockito.verify(repository).findAll();
+  }
+
   // ── findAllPaged ──────────────────────────────────────────────────────────
 
   @Test
-  @DisplayName("findAllPaged deve retornar página quando chamado")
-  public void findAllPagedDeveRetornarPaginaQuandoChamado() {
+  @DisplayName("findAllPaged should return a page when called")
+  public void findAllPagedShouldReturnPageWhenCalled() {
     PageImpl<Category> page = new PageImpl<>(List.of(category));
     Mockito.when(repository.findAll((Pageable) Mockito.any())).thenReturn(page);
 
@@ -62,8 +72,8 @@ public class CategoryServiceTests {
   // ── findById ──────────────────────────────────────────────────────────────
 
   @Test
-  @DisplayName("findById deve retornar CategoryDTO quando id existe")
-  public void findByIdDeveRetornarCategoryDTOQuandoIdExiste() {
+  @DisplayName("findById should return CategoryDTO when id exists")
+  public void findByIdShouldReturnCategoryDTOWhenIdExists() {
     Mockito.when(repository.findById(existingId)).thenReturn(Optional.of(category));
 
     CategoryDTO result = service.findById(existingId);
@@ -75,8 +85,8 @@ public class CategoryServiceTests {
   }
 
   @Test
-  @DisplayName("findById deve lançar ResourceNotFoundException quando id não existe")
-  public void findByIdDeveLancarExcecaoQuandoIdNaoExiste() {
+  @DisplayName("findById should throw ResourceNotFoundException when id does not exist")
+  public void findByIdShouldThrowExceptionWhenIdDoesNotExist() {
     Mockito.when(repository.findById(nonExistingId)).thenReturn(Optional.empty());
 
     Assertions.assertThrows(ResourceNotFoundException.class, () -> service.findById(nonExistingId));
@@ -86,8 +96,8 @@ public class CategoryServiceTests {
   // ── insert ────────────────────────────────────────────────────────────────
 
   @Test
-  @DisplayName("insert deve retornar CategoryDTO quando dados válidos")
-  public void insertDeveRetornarCategoryDTOQuandoDadosValidos() {
+  @DisplayName("insert should return CategoryDTO when data is valid")
+  public void insertShouldReturnCategoryDTOWhenDataIsValid() {
     Mockito.when(repository.save(Mockito.any())).thenReturn(category);
 
     CategoryDTO result = service.insert(categoryDTO);
@@ -100,8 +110,8 @@ public class CategoryServiceTests {
   // ── update ────────────────────────────────────────────────────────────────
 
   @Test
-  @DisplayName("update deve retornar CategoryDTO quando id existe")
-  public void updateDeveRetornarCategoryDTOQuandoIdExiste() {
+  @DisplayName("update should return CategoryDTO when id exists")
+  public void updateShouldReturnCategoryDTOWhenIdExists() {
     Mockito.when(repository.getReferenceById(existingId)).thenReturn(category);
     Mockito.when(repository.save(Mockito.any())).thenReturn(category);
 
@@ -114,8 +124,8 @@ public class CategoryServiceTests {
   }
 
   @Test
-  @DisplayName("update deve lançar ResourceNotFoundException quando id não existe")
-  public void updateDeveLancarExcecaoQuandoIdNaoExiste() {
+  @DisplayName("update should throw ResourceNotFoundException when id does not exist")
+  public void updateShouldThrowExceptionWhenIdDoesNotExist() {
     Mockito.when(repository.getReferenceById(nonExistingId))
             .thenThrow(new EntityNotFoundException("Entity not found"));
 
@@ -128,8 +138,8 @@ public class CategoryServiceTests {
   // ── delete ────────────────────────────────────────────────────────────────
 
   @Test
-  @DisplayName("delete não deve lançar exceção quando id existe")
-  public void deleteNaoDeveLancarExcecaoQuandoIdExiste() {
+  @DisplayName("delete should not throw an exception when id exists")
+  public void deleteShouldNotThrowExceptionWhenIdExists() {
     Mockito.when(repository.existsById(existingId)).thenReturn(true);
 
     Assertions.assertDoesNotThrow(() -> service.delete(existingId));
@@ -138,8 +148,8 @@ public class CategoryServiceTests {
   }
 
   @Test
-  @DisplayName("delete deve lançar ResourceNotFoundException quando id não existe")
-  public void deleteDeveLancarResourceNotFoundExceptionQuandoIdNaoExiste() {
+  @DisplayName("delete should throw ResourceNotFoundException when id does not exist")
+  public void deleteShouldThrowResourceNotFoundExceptionWhenIdDoesNotExist() {
     Mockito.when(repository.existsById(nonExistingId)).thenReturn(false);
 
     Assertions.assertThrows(
@@ -148,8 +158,8 @@ public class CategoryServiceTests {
   }
 
   @Test
-  @DisplayName("delete deve lançar DatabaseException quando há violação de integridade referencial")
-  public void deleteDeveLancarDatabaseExceptionQuandoHaViolacaoDeIntegridade() {
+  @DisplayName("delete should throw DatabaseException when there is a referential integrity violation")
+  public void deleteShouldThrowDatabaseExceptionWhenIntegrityViolationOccurs() {
     Mockito.when(repository.existsById(dependentId)).thenReturn(true);
     Mockito.doThrow(DataIntegrityViolationException.class)
             .when(repository).deleteById(dependentId);
