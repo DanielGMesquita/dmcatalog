@@ -2,14 +2,13 @@ package dev.danielmesquita.dmcatalog.controllers;
 
 import dev.danielmesquita.dmcatalog.dto.CategoryDTO;
 import dev.danielmesquita.dmcatalog.services.CategoryService;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.net.URI;
+import java.util.List;
 
 @RestController
 @RequestMapping("/categories")
@@ -21,11 +20,11 @@ public class CategoryController {
   }
 
   @GetMapping
-  public ResponseEntity<Page<CategoryDTO>> findAll(Pageable pageable) {
-    Page<CategoryDTO> list = service.findAllPaged(pageable);
+  public ResponseEntity<List<CategoryDTO>> findAll() {
+    List<CategoryDTO> list = service.findAll();
     return ResponseEntity.ok().body(list);
   }
-  
+
   @GetMapping(value = "/{id}")
   public ResponseEntity<CategoryDTO> findById(@PathVariable Long id) {
     CategoryDTO dto = service.findById(id);
