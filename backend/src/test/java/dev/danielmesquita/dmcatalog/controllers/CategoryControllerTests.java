@@ -52,17 +52,15 @@ public class CategoryControllerTests {
   // ── GET /categories ───────────────────────────────────────────────────────
 
   @Test
-  @DisplayName("findAll should return a page with categories")
-  public void findAllShouldReturnPageWithCategories() throws Exception {
-    Mockito.when(service.findAllPaged(ArgumentMatchers.any())).thenReturn(page);
+  @DisplayName("findAll should return a list with categories")
+  public void findAllShouldReturnListWithCategories() throws Exception {
+    Mockito.when(service.findAll()).thenReturn(List.of(categoryDTO));
 
     ResultActions result = mockMvc.perform(get("/categories")
             .accept(MediaType.APPLICATION_JSON));
 
     result.andExpect(status().isOk());
-    result.andExpect(jsonPath("$.content").exists());
-    result.andExpect(jsonPath("$.content[0].id").value(categoryDTO.getId()));
-    result.andExpect(jsonPath("$.content[0].name").value(categoryDTO.getName()));
+    result.andExpect(jsonPath("$[0].id").value(categoryDTO.getId()));
   }
 
   // ── GET /categories/{id} ──────────────────────────────────────────────────

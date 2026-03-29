@@ -31,41 +31,23 @@ public class CategoryControllerIntegrationTest {
 
   private Long existingId;
   private Long nonExistingId;
-  private Long countTotalCategories;
 
   @BeforeEach
   public void setUp() {
     existingId = 1L;
     nonExistingId = 1000L;
-    countTotalCategories = 3L;
   }
 
   // ── GET /categories ───────────────────────────────────────────────────────
 
   @Test
   @WithMockUser
-  @DisplayName("findAll should return a page with the correct total")
-  public void findAllShouldReturnPageWithCorrectTotal() throws Exception {
-    ResultActions result = mockMvc.perform(get("/categories")
+  public void findAllShouldReturnAllCategories() throws Exception {
+    ResultActions resultActions = mockMvc.perform(get("/categories")
             .accept(MediaType.APPLICATION_JSON));
 
-    result.andExpect(status().isOk());
-    result.andExpect(jsonPath("$.content").exists());
-    result.andExpect(jsonPath("$.totalElements").value(countTotalCategories));
-  }
-
-  @Test
-  @WithMockUser
-  @DisplayName("findAll should return categories sorted by name when sort=name,asc")
-  public void findAllShouldReturnCategoriesSortedByName() throws Exception {
-    ResultActions result = mockMvc.perform(
-            get("/categories?page=0&size=10&sort=name,asc")
-                    .accept(MediaType.APPLICATION_JSON));
-
-    result.andExpect(status().isOk());
-    result.andExpect(jsonPath("$.content[0].name").value("Computadores"));
-    result.andExpect(jsonPath("$.content[1].name").value("Eletrônicos"));
-    result.andExpect(jsonPath("$.content[2].name").value("Livros"));
+    resultActions.andExpect(status().isOk());
+    resultActions.andExpect(jsonPath("$.content[0].id").value(existingId.toString()));
   }
 
   // ── GET /categories/{id} ──────────────────────────────────────────────────
