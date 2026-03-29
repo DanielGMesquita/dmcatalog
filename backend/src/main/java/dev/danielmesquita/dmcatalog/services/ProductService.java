@@ -9,13 +9,14 @@ import dev.danielmesquita.dmcatalog.repositories.ProductRepository;
 import dev.danielmesquita.dmcatalog.services.exceptions.DatabaseException;
 import dev.danielmesquita.dmcatalog.services.exceptions.ResourceNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
-import java.util.Optional;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 @Service
 public class ProductService {
@@ -29,7 +30,7 @@ public class ProductService {
 
   @Transactional(readOnly = true)
   public Page<ProductDTO> findAllPaged(Pageable pageable) {
-    Page<Product> list = repository.findAll(pageable);
+    Page<Product> list = repository.findAllWithCategory(pageable);
     return list.map(ProductDTO::new);
   }
 
