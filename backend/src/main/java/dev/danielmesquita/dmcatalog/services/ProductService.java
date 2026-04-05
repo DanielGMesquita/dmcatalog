@@ -4,19 +4,21 @@ import dev.danielmesquita.dmcatalog.dto.CategoryDTO;
 import dev.danielmesquita.dmcatalog.dto.ProductDTO;
 import dev.danielmesquita.dmcatalog.entities.Category;
 import dev.danielmesquita.dmcatalog.entities.Product;
+import dev.danielmesquita.dmcatalog.projections.ProductProjection;
 import dev.danielmesquita.dmcatalog.repositories.CategoryRepository;
 import dev.danielmesquita.dmcatalog.repositories.ProductRepository;
 import dev.danielmesquita.dmcatalog.services.exceptions.DatabaseException;
 import dev.danielmesquita.dmcatalog.services.exceptions.ResourceNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
+import java.util.List;
+import java.util.Optional;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
 
 @Service
 public class ProductService {
@@ -26,12 +28,6 @@ public class ProductService {
   public ProductService(ProductRepository repository, CategoryRepository categoryRepository) {
     this.categoryRepository = categoryRepository;
     this.repository = repository;
-  }
-
-  @Transactional(readOnly = true)
-  public Page<ProductDTO> findAllPaged(Pageable pageable) {
-    Page<Product> list = repository.findAllWithCategory(pageable);
-    return list.map(ProductDTO::new);
   }
 
   @Transactional(readOnly = true)
@@ -86,5 +82,25 @@ public class ProductService {
       Category category = categoryRepository.getReferenceById(catDto.getId());
       entity.getCategories().add(category);
     }
+  }
+
+  @Transactional(readOnly = true)
+  public Page<ProductDTO> findAllPaged(String name, String categoryId, Pageable pageable) {
+    List<Long> categoryIdList = null;
+    String filteredName = "";
+    if (name != null && !name.isEmpty()) {
+      filteredName = name;
+    }
+    if (categoryId != null && !categoryId.isEmpty()) {
+      List<String> categoryIds = List.of(categoryId.split(","));
+      categoryIdList = categoryIds.stream().map(Long::parseLong).toList();
+    }
+    Page<ProductProjection> page = repository.searchAll(categoryIdList, filteredName, pageable);
+
+    List<Long> productIds = page.map(ProductProjection::getId).toList();
+    List<Product> products = repository.searchProductsWithCategories(productIds);
+    List<ProductDTO> productDTOs = products.stream().map(ProductDTO::new).toList();
+
+    return new PageImpl<>(productDTOs, pageable, page.getTotalElements());
   }
 }
