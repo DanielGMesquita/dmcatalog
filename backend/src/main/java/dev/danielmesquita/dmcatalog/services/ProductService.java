@@ -11,7 +11,9 @@ import dev.danielmesquita.dmcatalog.services.exceptions.DatabaseException;
 import dev.danielmesquita.dmcatalog.services.exceptions.ResourceNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -99,7 +101,11 @@ public class ProductService {
 
     List<Long> productIds = page.map(ProductProjection::getId).toList();
     List<Product> products = repository.searchProductsWithCategories(productIds);
-    List<ProductDTO> productDTOs = products.stream().map(ProductDTO::new).toList();
+
+    Map<Long, Product> productMap =
+        products.stream().collect(Collectors.toMap(Product::getId, product -> product));
+    List<ProductDTO> productDTOs =
+        productIds.stream().map(productMap::get).map(ProductDTO::new).toList();
 
     return new PageImpl<>(productDTOs, pageable, page.getTotalElements());
   }

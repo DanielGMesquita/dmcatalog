@@ -16,12 +16,13 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
       nativeQuery = true,
       value =
           """
+                  SELECT * FROM(
                   SELECT DISTINCT tb_product.id, tb_product.name
                   FROM tb_product
                   INNER JOIN tb_product_category ON tb_product.id = tb_product_category.product_id
                   WHERE (:categoriesIds IS NULL OR tb_product_category.category_id IN (:categoriesIds))
                   AND (LOWER(tb_product.name) LIKE LOWER(CONCAT('%', :name, '%')) OR :name IS NULL)
-                  ORDER BY tb_product.name
+                  ) AS tb_result
                   """,
       countQuery =
           """
@@ -35,7 +36,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
                   """)
   Page<ProductProjection> searchAll(List<Long> categoriesIds, String name, Pageable pageable);
 
-  @Query(
-      "SELECT p FROM Product p JOIN FETCH p.categories WHERE p.id IN :productIds ORDER BY p.name")
+  @Query("SELECT p FROM Product p JOIN FETCH p.categories WHERE p.id IN :productIds")
   List<Product> searchProductsWithCategories(List<Long> productIds);
 }

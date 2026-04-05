@@ -44,7 +44,8 @@ public class ProductControllerIntegrationTest {
   @WithMockUser
   public void findAllShouldReturnSortedPageOrderedByName() throws Exception {
     ResultActions resultActions =
-        mockMvc.perform(get("/products?page0&size=12").accept(MediaType.APPLICATION_JSON));
+        mockMvc.perform(
+            get("/products?page0&size=12&sort=name,asc").accept(MediaType.APPLICATION_JSON));
 
     resultActions.andExpect(status().isOk());
     resultActions.andExpect(jsonPath("$.content").exists());
@@ -58,7 +59,8 @@ public class ProductControllerIntegrationTest {
   @WithMockUser
   public void findAllShouldReturnSortedPageOrderedByNameWhenNameHasValue() throws Exception {
     ResultActions resultActions =
-        mockMvc.perform(get("/products?page0&size=12&name=mac").accept(MediaType.APPLICATION_JSON));
+        mockMvc.perform(
+            get("/products?page=0&size=12&name=mac").accept(MediaType.APPLICATION_JSON));
 
     resultActions.andExpect(status().isOk());
     resultActions.andExpect(jsonPath("$.content").exists());
@@ -71,7 +73,8 @@ public class ProductControllerIntegrationTest {
   public void findAllShouldReturnSortedPageOrderedByNameWhenCategoryIdHasValue() throws Exception {
     ResultActions resultActions =
         mockMvc.perform(
-            get("/products?page0&size=12&categoryId=1,3").accept(MediaType.APPLICATION_JSON));
+            get("/products?page0&size=12&categoryId=1,3&sort=name,asc")
+                .accept(MediaType.APPLICATION_JSON));
 
     resultActions.andExpect(status().isOk());
     resultActions.andExpect(jsonPath("$.content").exists());

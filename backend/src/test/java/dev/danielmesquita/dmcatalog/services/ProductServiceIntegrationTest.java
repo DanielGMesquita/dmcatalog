@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
@@ -62,7 +63,7 @@ public class ProductServiceIntegrationTest {
 
   @Test
   public void findAllPagedShouldReturnPageWithFilteredResultsWhenNameIsSet() {
-    PageRequest pageable = PageRequest.of(0, 10);
+    PageRequest pageable = PageRequest.of(0, 10, Sort.by("name"));
     Page<ProductDTO> result = productService.findAllPaged("Ma", null, pageable);
     Assertions.assertFalse(result.isEmpty());
     Assertions.assertEquals("Macbook Pro", result.getContent().get(0).getName());
@@ -72,7 +73,7 @@ public class ProductServiceIntegrationTest {
 
   @Test
   public void findAllPagedShouldReturnPageWithFilteredResultsWhenCategoryIdIsSet() {
-    PageRequest pageable = PageRequest.of(0, 10);
+    PageRequest pageable = PageRequest.of(0, 10, Sort.by("name"));
     Page<ProductDTO> result = productService.findAllPaged(null, "2", pageable);
     Assertions.assertFalse(result.isEmpty());
     Assertions.assertEquals("Rails for Dummies", result.getContent().get(0).getName());
