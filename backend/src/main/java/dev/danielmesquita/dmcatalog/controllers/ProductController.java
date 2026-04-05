@@ -3,14 +3,13 @@ package dev.danielmesquita.dmcatalog.controllers;
 import dev.danielmesquita.dmcatalog.dto.ProductDTO;
 import dev.danielmesquita.dmcatalog.services.ProductService;
 import jakarta.validation.Valid;
+import java.net.URI;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-import java.net.URI;
 
 @RestController
 @RequestMapping(value = "/products")
@@ -22,8 +21,11 @@ public class ProductController {
   }
 
   @GetMapping
-  public ResponseEntity<Page<ProductDTO>> findAll(Pageable pageable) {
-    Page<ProductDTO> list = service.findAllPaged(pageable);
+  public ResponseEntity<Page<ProductDTO>> findAll(
+          Pageable pageable,
+          @RequestParam(value = "name", required = false) String name,
+          @RequestParam(value = "categoryId", required = false) String categoryId) {
+    Page<ProductDTO> list = service.findAllPaged(name, categoryId, pageable);
     return ResponseEntity.ok().body(list);
   }
 
