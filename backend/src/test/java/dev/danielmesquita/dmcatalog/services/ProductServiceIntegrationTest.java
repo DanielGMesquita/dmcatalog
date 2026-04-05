@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
@@ -49,7 +48,7 @@ public class ProductServiceIntegrationTest {
   @Test
   public void findAllPagedShouldReturnPage() {
     PageRequest pageable = PageRequest.of(0, 10);
-    Page<ProductDTO> result = productService.findAllPaged(pageable);
+    Page<ProductDTO> result = productService.findAllPaged(null, null, pageable);
     Assertions.assertFalse(result.isEmpty());
     Assertions.assertEquals(countTotalProducts, result.getTotalElements());
   }
@@ -57,17 +56,26 @@ public class ProductServiceIntegrationTest {
   @Test
   public void findAllPagedShouldReturnEmptyPageWhenPageDoesNotExists() {
     PageRequest pageable = PageRequest.of(50, 10);
-    Page<ProductDTO> result = productService.findAllPaged(pageable);
+    Page<ProductDTO> result = productService.findAllPaged(null, null, pageable);
     Assertions.assertTrue(result.isEmpty());
   }
 
   @Test
-  public void findAllPagedShouldReturnOrderedPageWhenSortByName() {
-    PageRequest pageable = PageRequest.of(0, 10, Sort.by("name"));
-    Page<ProductDTO> result = productService.findAllPaged(pageable);
+  public void findAllPagedShouldReturnPageWithFilteredResultsWhenNameIsSet() {
+    PageRequest pageable = PageRequest.of(0, 10);
+    Page<ProductDTO> result = productService.findAllPaged("Ma", null, pageable);
     Assertions.assertFalse(result.isEmpty());
     Assertions.assertEquals("Macbook Pro", result.getContent().get(0).getName());
-    Assertions.assertEquals("PC Gamer", result.getContent().get(1).getName());
-    Assertions.assertEquals("PC Gamer Alfa", result.getContent().get(2).getName());
+    Assertions.assertEquals("PC Gamer Max", result.getContent().get(1).getName());
+    Assertions.assertEquals("Smart TV", result.getContent().get(2).getName());
+  }
+
+  @Test
+  public void findAllPagedShouldReturnPageWithFilteredResultsWhenCategoryIdIsSet() {
+    PageRequest pageable = PageRequest.of(0, 10);
+    Page<ProductDTO> result = productService.findAllPaged(null, "2", pageable);
+    Assertions.assertFalse(result.isEmpty());
+    Assertions.assertEquals("Rails for Dummies", result.getContent().get(0).getName());
+    Assertions.assertEquals("The Lord of the Rings", result.getContent().get(1).getName());
   }
 }
