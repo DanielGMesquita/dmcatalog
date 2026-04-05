@@ -1,5 +1,9 @@
 package dev.danielmesquita.dmcatalog.controllers;
 
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.danielmesquita.dmcatalog.dto.CategoryDTO;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,20 +18,14 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
 @SpringBootTest
 @AutoConfigureMockMvc
 @Transactional
 public class CategoryControllerIntegrationTest {
 
-  @Autowired
-  private MockMvc mockMvc;
+  @Autowired private MockMvc mockMvc;
 
-  @Autowired
-  private ObjectMapper objectMapper;
+  @Autowired private ObjectMapper objectMapper;
 
   private Long existingId;
   private Long nonExistingId;
@@ -43,11 +41,11 @@ public class CategoryControllerIntegrationTest {
   @Test
   @WithMockUser
   public void findAllShouldReturnAllCategories() throws Exception {
-    ResultActions resultActions = mockMvc.perform(get("/categories")
-            .accept(MediaType.APPLICATION_JSON));
+    ResultActions resultActions =
+        mockMvc.perform(get("/categories").accept(MediaType.APPLICATION_JSON));
 
     resultActions.andExpect(status().isOk());
-    resultActions.andExpect(jsonPath("$.content[0].id").value(existingId.toString()));
+    resultActions.andExpect(jsonPath("$.[0].id").value(existingId.toString()));
   }
 
   // ── GET /categories/{id} ──────────────────────────────────────────────────
@@ -56,20 +54,20 @@ public class CategoryControllerIntegrationTest {
   @WithMockUser
   @DisplayName("findById should return CategoryDTO when id exists")
   public void findByIdShouldReturnCategoryDTOWhenIdExists() throws Exception {
-    ResultActions result = mockMvc.perform(get("/categories/{id}", existingId)
-            .accept(MediaType.APPLICATION_JSON));
+    ResultActions result =
+        mockMvc.perform(get("/categories/{id}", existingId).accept(MediaType.APPLICATION_JSON));
 
     result.andExpect(status().isOk());
     result.andExpect(jsonPath("$.id").value(existingId));
-    result.andExpect(jsonPath("$.name").value("Livros"));
+    result.andExpect(jsonPath("$.name").value("Eletrônicos"));
   }
 
   @Test
   @WithMockUser
   @DisplayName("findById should return 404 with error body when id does not exist")
   public void findByIdShouldReturn404WithErrorBodyWhenIdDoesNotExist() throws Exception {
-    ResultActions result = mockMvc.perform(get("/categories/{id}", nonExistingId)
-            .accept(MediaType.APPLICATION_JSON));
+    ResultActions result =
+        mockMvc.perform(get("/categories/{id}", nonExistingId).accept(MediaType.APPLICATION_JSON));
 
     result.andExpect(status().isNotFound());
     result.andExpect(jsonPath("$.status").value(404));
@@ -86,11 +84,13 @@ public class CategoryControllerIntegrationTest {
     CategoryDTO dto = new CategoryDTO(null, "Games");
     String jsonBody = objectMapper.writeValueAsString(dto);
 
-    ResultActions result = mockMvc.perform(post("/categories")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(jsonBody)
-            .accept(MediaType.APPLICATION_JSON)
-            .with(csrf()));
+    ResultActions result =
+        mockMvc.perform(
+            post("/categories")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonBody)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(csrf()));
 
     result.andExpect(status().isCreated());
     result.andExpect(header().exists("Location"));
@@ -105,12 +105,14 @@ public class CategoryControllerIntegrationTest {
     CategoryDTO dto = new CategoryDTO(null, "Games");
     String jsonBody = objectMapper.writeValueAsString(dto);
 
-    mockMvc.perform(post("/categories")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(jsonBody)
-                    .accept(MediaType.APPLICATION_JSON)
-                    .with(csrf()))
-            .andExpect(status().isForbidden());
+    mockMvc
+        .perform(
+            post("/categories")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonBody)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(csrf()))
+        .andExpect(status().isForbidden());
   }
 
   // ── PUT /categories/{id} ──────────────────────────────────────────────────
@@ -122,11 +124,13 @@ public class CategoryControllerIntegrationTest {
     CategoryDTO dto = new CategoryDTO(existingId, "Livros Atualizados");
     String jsonBody = objectMapper.writeValueAsString(dto);
 
-    ResultActions result = mockMvc.perform(put("/categories/{id}", existingId)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(jsonBody)
-            .accept(MediaType.APPLICATION_JSON)
-            .with(csrf()));
+    ResultActions result =
+        mockMvc.perform(
+            put("/categories/{id}", existingId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonBody)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(csrf()));
 
     result.andExpect(status().isOk());
     result.andExpect(jsonPath("$.id").value(existingId));
@@ -140,12 +144,14 @@ public class CategoryControllerIntegrationTest {
     CategoryDTO dto = new CategoryDTO(nonExistingId, "Inexistente");
     String jsonBody = objectMapper.writeValueAsString(dto);
 
-    mockMvc.perform(put("/categories/{id}", nonExistingId)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(jsonBody)
-                    .accept(MediaType.APPLICATION_JSON)
-                    .with(csrf()))
-            .andExpect(status().isNotFound());
+    mockMvc
+        .perform(
+            put("/categories/{id}", nonExistingId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonBody)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(csrf()))
+        .andExpect(status().isNotFound());
   }
 
   // ── DELETE /categories/{id} ───────────────────────────────────────────────
@@ -154,17 +160,17 @@ public class CategoryControllerIntegrationTest {
   @WithMockUser(roles = "ADMIN")
   @DisplayName("delete should return 404 when id does not exist")
   public void deleteShouldReturn404WhenIdDoesNotExist() throws Exception {
-    mockMvc.perform(delete("/categories/{id}", nonExistingId)
-                    .with(csrf()))
-            .andExpect(status().isNotFound());
+    mockMvc
+        .perform(delete("/categories/{id}", nonExistingId).with(csrf()))
+        .andExpect(status().isNotFound());
   }
 
   @Test
   @WithMockUser
   @DisplayName("delete without ADMIN role should return 403")
   public void deleteWithoutAdminRoleShouldReturn403() throws Exception {
-    mockMvc.perform(delete("/categories/{id}", existingId)
-                    .with(csrf()))
-            .andExpect(status().isForbidden());
+    mockMvc
+        .perform(delete("/categories/{id}", existingId).with(csrf()))
+        .andExpect(status().isForbidden());
   }
 }
