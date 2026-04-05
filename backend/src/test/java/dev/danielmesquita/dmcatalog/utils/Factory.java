@@ -5,16 +5,17 @@ import dev.danielmesquita.dmcatalog.entities.Category;
 import dev.danielmesquita.dmcatalog.entities.Product;
 import dev.danielmesquita.dmcatalog.entities.Role;
 import dev.danielmesquita.dmcatalog.entities.User;
+import dev.danielmesquita.dmcatalog.projections.ProductProjection;
 
 public class Factory {
   public static Product createProduct() {
     return new Product(
-            1L,
-            "Test Product",
-            "This is a test product",
-            99.99,
-            "https://example.com/image.jpg",
-            java.time.Instant.now());
+        1L,
+        "Test Product",
+        "This is a test product",
+        99.99,
+        "https://example.com/image.jpg",
+        java.time.Instant.now());
   }
 
   public static ProductDTO createProductDTO() {
@@ -44,5 +45,19 @@ public class Factory {
     user.getRoles().add(createRoleUser());
     user.getRoles().add(createRoleAdmin());
     return user;
+  }
+
+  public static ProductProjection createProductProjection() {
+    return new ProductProjection() {
+      @Override
+      public Long getId() {
+        return 1L;
+      }
+
+      @Override
+      public String getName() {
+        return "Test Product";
+      }
+    };
   }
 }
