@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class AuthService {
 
-  @Value("${email.recovery-token.duration")
+  @Value("${email.recovery-token.duration}")
   private Long tokenDuration;
 
   private final UserRepository userRepository;
