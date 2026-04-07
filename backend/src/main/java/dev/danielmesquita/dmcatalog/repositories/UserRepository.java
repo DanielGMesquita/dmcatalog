@@ -2,15 +2,14 @@ package dev.danielmesquita.dmcatalog.repositories;
 
 import dev.danielmesquita.dmcatalog.entities.User;
 import dev.danielmesquita.dmcatalog.projections.UserDetailsProjection;
+import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
-
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
-  public User findByEmail(String email);
+  User findByEmail(String email);
 
   @Query(
           nativeQuery = true,
