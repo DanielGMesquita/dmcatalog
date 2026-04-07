@@ -5,16 +5,11 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
-
-import java.io.Serial;
-import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-public class UserDTO implements Serializable {
-  @Serial
-  private static final long serialVersionUID = 1L;
+public class UserDTO {
 
   private Long id;
 

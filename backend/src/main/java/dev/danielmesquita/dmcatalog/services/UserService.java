@@ -5,12 +5,15 @@ import dev.danielmesquita.dmcatalog.dto.UserInsertDTO;
 import dev.danielmesquita.dmcatalog.dto.UserUpdateDTO;
 import dev.danielmesquita.dmcatalog.entities.Role;
 import dev.danielmesquita.dmcatalog.entities.User;
+import dev.danielmesquita.dmcatalog.enums.RoleEnum;
 import dev.danielmesquita.dmcatalog.projections.UserDetailsProjection;
 import dev.danielmesquita.dmcatalog.repositories.RoleRepository;
 import dev.danielmesquita.dmcatalog.repositories.UserRepository;
 import dev.danielmesquita.dmcatalog.services.exceptions.DatabaseException;
 import dev.danielmesquita.dmcatalog.services.exceptions.ResourceNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
+import java.util.List;
+import java.util.Optional;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,16 +25,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.Optional;
-
 @Service
 public class UserService implements UserDetailsService {
   private final UserRepository repository;
   private final RoleRepository roleRepository;
   private final PasswordEncoder passwordEncoder;
 
-  public UserService(UserRepository repository, RoleRepository roleRepository, PasswordEncoder passwordEncoder) {
+  public UserService(
+      UserRepository repository, RoleRepository roleRepository, PasswordEncoder passwordEncoder) {
     this.repository = repository;
     this.roleRepository = roleRepository;
     this.passwordEncoder = passwordEncoder;
@@ -47,14 +48,14 @@ public class UserService implements UserDetailsService {
     user.setEmail(username);
     user.setPassword(result.getFirst().getPassword());
     result.stream()
-            .map(
-                    projection -> {
-                      Role role = new Role();
-                      role.setId(projection.getRoleId());
-                      role.setAuthority(projection.getAuthority());
-                      return role;
-                    })
-            .forEach(user::addRole);
+        .map(
+            projection -> {
+              Role role = new Role();
+              role.setId(projection.getRoleId());
+              role.setAuthority(projection.getAuthority());
+              return role;
+            })
+        .forEach(user::addRole);
 
     return user;
   }
@@ -76,6 +77,7 @@ public class UserService implements UserDetailsService {
   public UserDTO insert(UserInsertDTO dto) {
     User entity = new User();
     copyDtoToEntity(dto, entity);
+    entity.getRoles().add(roleRepository.findByAuthority(RoleEnum.ROLE_OPERATOR.getAuthority()));
     entity.setPassword(passwordEncoder.encode(dto.getPassword()));
     entity = repository.save(entity);
     return new UserDTO(entity);
@@ -86,6 +88,13 @@ public class UserService implements UserDetailsService {
     try {
       User entity = repository.getReferenceById(id);
       copyDtoToEntity(dto, entity);
+      User finalEntity = entity;
+      dto.getRoles()
+          .forEach(
+              roleDto -> {
+                Role role = roleRepository.getReferenceById(roleDto.getId());
+                finalEntity.getRoles().add(role);
+              });
       entity = repository.save(entity);
       return new UserUpdateDTO(entity);
     } catch (EntityNotFoundException e) {
@@ -110,6 +119,5 @@ public class UserService implements UserDetailsService {
     entity.setLastName(dto.getLastName());
     entity.setEmail(dto.getEmail());
     entity.getRoles().clear();
-    dto.getRoles().forEach(roleDTO -> entity.getRoles().add(roleRepository.getReferenceById(roleDTO.getId())));
   }
 }
