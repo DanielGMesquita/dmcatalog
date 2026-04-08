@@ -20,15 +20,20 @@ public class AuthService {
 
   private final UserRepository userRepository;
   private final RecoveryTokenRepository tokenRepository;
+  private final EmailService emailService;
 
-  public AuthService(UserRepository userRepository, RecoveryTokenRepository tokenRepository) {
+  public AuthService(
+      UserRepository userRepository,
+      RecoveryTokenRepository tokenRepository,
+      EmailService emailService) {
     this.userRepository = userRepository;
     this.tokenRepository = tokenRepository;
+    this.emailService = emailService;
   }
 
   @Transactional
-  public void createRecoveryToken(EmailDTO body) {
-    String email = body.getEmail();
+  public void createRecoveryToken(EmailDTO requestBody) {
+    String email = requestBody.getEmail();
     User user = userRepository.findByEmail(email);
 
     if (user == null) {
@@ -39,7 +44,25 @@ public class AuthService {
     recoveryToken.setEmail(email);
     recoveryToken.setToken(UUID.randomUUID().toString());
     recoveryToken.setExpiration(Instant.now().plusSeconds(tokenDuration));
-
     tokenRepository.save(recoveryToken);
+
+    String emailBody =
+        """
+            Dear %s,
+
+            We received a request to reset your password. Please use the following token to reset your password:
+
+            Token: %s
+
+            This token will expire in %d minutes.
+
+            If you did not request a password reset, please ignore this email.
+
+            Best regards,
+            DMCatalog Team
+            """
+            .formatted(user.getFirstName(), recoveryToken.getToken(), tokenDuration / 60);
+
+    emailService.sendEmail(email, "Password recovery", emailBody);
   }
 }
