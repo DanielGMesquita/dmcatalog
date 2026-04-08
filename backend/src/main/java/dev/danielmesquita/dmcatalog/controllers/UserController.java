@@ -27,27 +27,28 @@ public class UserController {
     Page<UserDTO> list = service.findAllPaged(pageable);
     return ResponseEntity.ok().body(list);
   }
-  
+
   @GetMapping(value = "/{id}")
   public ResponseEntity<UserDTO> findById(@PathVariable Long id) {
     UserDTO dto = service.findById(id);
     return ResponseEntity.ok().body(dto);
   }
-  
+
   @PostMapping
   public ResponseEntity<UserDTO> insert(@Valid @RequestBody UserInsertDTO dto) {
     UserDTO newDto = service.insert(dto);
     URI uri =
-            ServletUriComponentsBuilder.fromCurrentRequest()
-                    .path("/{id}")
-                    .buildAndExpand(newDto.getId())
-                    .toUri();
+        ServletUriComponentsBuilder.fromCurrentRequest()
+            .path("/{id}")
+            .buildAndExpand(newDto.getId())
+            .toUri();
     return ResponseEntity.created(uri).body(newDto);
   }
 
   @PreAuthorize("hasRole('ROLE_ADMIN')")
   @PutMapping(value = "/{id}")
-  public ResponseEntity<UserUpdateDTO> update(@PathVariable Long id, @Valid @RequestBody UserUpdateDTO dto) {
+  public ResponseEntity<UserUpdateDTO> update(
+      @PathVariable Long id, @Valid @RequestBody UserUpdateDTO dto) {
     dto = service.update(id, dto);
     return ResponseEntity.ok().body(dto);
   }
@@ -57,5 +58,12 @@ public class UserController {
   public ResponseEntity<Void> delete(@PathVariable Long id) {
     service.delete(id);
     return ResponseEntity.noContent().build();
+  }
+
+  @PreAuthorize("hasAnyRole('ROLE_ADMIN', 'ROLE_OPERATOR')")
+  @GetMapping(value = "/me")
+  public ResponseEntity<UserDTO> getMe() {
+    UserDTO userDTO = service.getMe();
+    return ResponseEntity.ok(userDTO);
   }
 }
