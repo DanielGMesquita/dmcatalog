@@ -18,6 +18,9 @@ public class AuthService {
   @Value("${email.recovery-token.duration}")
   private Long tokenDuration;
 
+  @Value("${email.recovery-token.uri}")
+  private String recoveryUri;
+
   private final UserRepository userRepository;
   private final RecoveryTokenRepository tokenRepository;
   private final EmailService emailService;
@@ -50,18 +53,18 @@ public class AuthService {
         """
             Dear %s,
 
-            We received a request to reset your password. Please use the following token to reset your password:
+            We received a request to reset your password. Please access the following link to reset your password:
+            %s
 
-            Token: %s
-
-            This token will expire in %d minutes.
+            This link will expire in %d minutes.
 
             If you did not request a password reset, please ignore this email.
 
             Best regards,
             DMCatalog Team
             """
-            .formatted(user.getFirstName(), recoveryToken.getToken(), tokenDuration / 60);
+            .formatted(
+                user.getFirstName(), recoveryUri + recoveryToken.getToken(), tokenDuration / 60);
 
     emailService.sendEmail(email, "Password recovery", emailBody);
   }
