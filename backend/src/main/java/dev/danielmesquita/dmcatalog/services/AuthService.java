@@ -1,6 +1,7 @@
 package dev.danielmesquita.dmcatalog.services;
 
 import dev.danielmesquita.dmcatalog.dto.EmailDTO;
+import dev.danielmesquita.dmcatalog.dto.NewPasswordDTO;
 import dev.danielmesquita.dmcatalog.entities.RecoveryToken;
 import dev.danielmesquita.dmcatalog.entities.User;
 import dev.danielmesquita.dmcatalog.repositories.RecoveryTokenRepository;
@@ -9,6 +10,7 @@ import dev.danielmesquita.dmcatalog.services.exceptions.ResourceNotFoundExceptio
 import java.time.Instant;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,14 +23,18 @@ public class AuthService {
   @Value("${email.recovery-token.uri}")
   private String recoveryUri;
 
+  private final PasswordEncoder passwordEncoder;
   private final UserRepository userRepository;
   private final RecoveryTokenRepository tokenRepository;
   private final EmailService emailService;
 
   public AuthService(
+      PasswordEncoder passwordEncoder,
       UserRepository userRepository,
       RecoveryTokenRepository tokenRepository,
-      EmailService emailService) {
+      EmailService emailService,
+      UserService userService) {
+    this.passwordEncoder = passwordEncoder;
     this.userRepository = userRepository;
     this.tokenRepository = tokenRepository;
     this.emailService = emailService;
@@ -67,5 +73,17 @@ public class AuthService {
                 user.getFirstName(), recoveryUri + recoveryToken.getToken(), tokenDuration / 60);
 
     emailService.sendEmail(email, "Password recovery", emailBody);
+  }
+
+  @Transactional
+  public void saveNewPassword(NewPasswordDTO body) {
+    RecoveryToken validToken =
+        tokenRepository
+            .searchValidToken(body.getToken(), Instant.now())
+            .orElseThrow(() -> new ResourceNotFoundException("Invalid or expired token"));
+
+    User user = userRepository.findByEmail(validToken.getEmail());
+    user.setPassword(passwordEncoder.encode(body.getPassword()));
+    userRepository.save(user);
   }
 }
