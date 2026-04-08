@@ -17,13 +17,10 @@ import java.util.Optional;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,12 +30,17 @@ public class UserService implements UserDetailsService {
   private final UserRepository repository;
   private final RoleRepository roleRepository;
   private final PasswordEncoder passwordEncoder;
+  private final AuthService authService;
 
   public UserService(
-      UserRepository repository, RoleRepository roleRepository, PasswordEncoder passwordEncoder) {
+      UserRepository repository,
+      RoleRepository roleRepository,
+      PasswordEncoder passwordEncoder,
+      AuthService authService) {
     this.repository = repository;
     this.roleRepository = roleRepository;
     this.passwordEncoder = passwordEncoder;
+    this.authService = authService;
   }
 
   @Override
@@ -126,19 +128,7 @@ public class UserService implements UserDetailsService {
 
   @Transactional(readOnly = true)
   public UserDTO getMe() {
-    User user = authenticated();
+    User user = authService.authenticated();
     return new UserDTO(user);
-  }
-
-  protected User authenticated() {
-    try {
-      Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-      Jwt jwt = (Jwt) authentication.getPrincipal();
-      String username = jwt.getClaim("username");
-
-      return repository.findByEmail(username);
-    } catch (Exception e) {
-      throw new UsernameNotFoundException("User not found");
-    }
   }
 }

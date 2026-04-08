@@ -10,7 +10,11 @@ import dev.danielmesquita.dmcatalog.services.exceptions.ResourceNotFoundExceptio
 import java.time.Instant;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,8 +36,7 @@ public class AuthService {
       PasswordEncoder passwordEncoder,
       UserRepository userRepository,
       RecoveryTokenRepository tokenRepository,
-      EmailService emailService,
-      UserService userService) {
+      EmailService emailService) {
     this.passwordEncoder = passwordEncoder;
     this.userRepository = userRepository;
     this.tokenRepository = tokenRepository;
@@ -85,5 +88,17 @@ public class AuthService {
     User user = userRepository.findByEmail(validToken.getEmail());
     user.setPassword(passwordEncoder.encode(body.getPassword()));
     userRepository.save(user);
+  }
+
+  protected User authenticated() {
+    try {
+      Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+      Jwt jwt = (Jwt) authentication.getPrincipal();
+      String username = jwt.getClaim("username");
+
+      return userRepository.findByEmail(username);
+    } catch (Exception e) {
+      throw new UsernameNotFoundException("User not found");
+    }
   }
 }
