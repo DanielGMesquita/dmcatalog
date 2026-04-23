@@ -94,6 +94,16 @@
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>0.8.14</version>
+                <configuration>
+                    <excludes>
+                        <exclude>dev/danielmesquita/dmcatalog/DmcatalogApplication.class</exclude>
+                        <exclude>dev/danielmesquita/dmcatalog/dto/**</exclude>
+                        <exclude>dev/danielmesquita/dmcatalog/entities/**</exclude>
+                        <exclude>dev/danielmesquita/dmcatalog/services/exceptions/**</exclude>
+                        <exclude>dev/danielmesquita/dmcatalog/config/**</exclude>
+                        <exclude>dev/danielmesquita/dmcatalog/controllers/handlers/**</exclude>
+                    </excludes>
+                </configuration>
                 <executions>
                     <execution>
                         <id>prepare-agent</id>
