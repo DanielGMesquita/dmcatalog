@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.danielmesquita.dmcatalog.dto.ProductDTO;
 import dev.danielmesquita.dmcatalog.utils.Factory;
 import dev.danielmesquita.dmcatalog.utils.TokenUtil;
+import java.time.Instant;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,6 +60,8 @@ public class ProductControllerIntegrationTest {
     clientUsername = "alex@gmail.com";
     password = "123456";
     invalidToken = "00000000";
+    adminToken = tokenUtil.obtainAccessToken(mockMvc, adminUsername, password);
+    clientToken = tokenUtil.obtainAccessToken(mockMvc, clientUsername, password);
   }
 
   @Test
@@ -153,7 +156,6 @@ public class ProductControllerIntegrationTest {
   @Test
   public void insertShouldReturnProductDTOCreatedWhenAdminLogged() throws Exception {
     String jsonBody = objectMapper.writeValueAsString(productDTO);
-    adminToken = tokenUtil.obtainAccessToken(mockMvc, adminUsername, password);
 
     ResultActions resultActions =
         mockMvc.perform(
@@ -172,7 +174,6 @@ public class ProductControllerIntegrationTest {
   @Test
   public void insertShouldReturnExceptionWhenClientLogged() throws Exception {
     String jsonBody = objectMapper.writeValueAsString(productDTO);
-    clientToken = tokenUtil.obtainAccessToken(mockMvc, clientUsername, password);
 
     ResultActions resultActions =
         mockMvc.perform(
@@ -184,5 +185,81 @@ public class ProductControllerIntegrationTest {
                 .with(csrf()));
 
     resultActions.andExpect(status().isForbidden());
+  }
+
+  @Test
+  public void insertShouldReturnUnprocessableEntityWhenAdminLoggedAndInvalidName()
+      throws Exception {
+    productDTO.setName("ab");
+
+    String jsonBody = objectMapper.writeValueAsString(productDTO);
+
+    ResultActions resultActions =
+        mockMvc.perform(
+            post("/products")
+                .header("Authorization", "Bearer " + adminToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonBody)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(csrf()));
+
+    resultActions.andExpect(status().isUnprocessableEntity());
+  }
+
+  @Test
+  public void insertShouldReturnUnprocessableEntityWhenAdminLoggedAndInvalidDescription()
+      throws Exception {
+    productDTO.setDescription("");
+
+    String jsonBody = objectMapper.writeValueAsString(productDTO);
+
+    ResultActions resultActions =
+        mockMvc.perform(
+            post("/products")
+                .header("Authorization", "Bearer " + adminToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonBody)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(csrf()));
+
+    resultActions.andExpect(status().isUnprocessableEntity());
+  }
+
+  @Test
+  public void insertShouldReturnUnprocessableEntityWhenAdminLoggedAndInvalidPrice()
+      throws Exception {
+    productDTO.setPrice(-10.0);
+
+    String jsonBody = objectMapper.writeValueAsString(productDTO);
+
+    ResultActions resultActions =
+        mockMvc.perform(
+            post("/products")
+                .header("Authorization", "Bearer " + adminToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonBody)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(csrf()));
+
+    resultActions.andExpect(status().isUnprocessableEntity());
+  }
+
+  @Test
+  public void insertShouldReturnUnprocessableEntityWhenAdminLoggedAndInvalidDate()
+      throws Exception {
+    productDTO.setDate(Instant.now().plusSeconds(3600));
+
+    String jsonBody = objectMapper.writeValueAsString(productDTO);
+
+    ResultActions resultActions =
+        mockMvc.perform(
+            post("/products")
+                .header("Authorization", "Bearer " + adminToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonBody)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(csrf()));
+
+    resultActions.andExpect(status().isUnprocessableEntity());
   }
 }
