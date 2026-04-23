@@ -1,14 +1,14 @@
 package dev.danielmesquita.dmcatalog.controllers;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.danielmesquita.dmcatalog.dto.ProductDTO;
 import dev.danielmesquita.dmcatalog.utils.Factory;
+import dev.danielmesquita.dmcatalog.utils.TokenUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,15 +29,36 @@ public class ProductControllerIntegrationTest {
 
   @Autowired private ObjectMapper objectMapper;
 
+  @Autowired private TokenUtil tokenUtil;
+
+  private ProductDTO productDTO;
+
   private Long existingId;
   private Long nonExistingId;
   private Long countTotalProducts;
 
+  private String adminToken;
+  private String clientToken;
+  private String invalidToken;
+
+  private String adminUsername;
+  private String clientUsername;
+  private String invalidUsername;
+
+  private String password;
+  private String invalidPassword;
+
   @BeforeEach
-  public void setUp() {
+  public void setUp() throws Exception {
     existingId = 1L; // Assume this ID exists in the test database
     nonExistingId = 1000L; // Assume this ID does not exist
     countTotalProducts = 25L; // Assume there are 25 products in total
+    productDTO = Factory.createProductDTO();
+
+    adminUsername = "maria@gmail.com";
+    clientUsername = "alex@gmail.com";
+    password = "123456";
+    invalidToken = "00000000";
   }
 
   @Test
@@ -98,7 +119,6 @@ public class ProductControllerIntegrationTest {
   @Test
   @WithMockUser(roles = "ADMIN")
   public void updateShouldReturnProductDTOWhenIdExists() throws Exception {
-    ProductDTO productDTO = Factory.createProductDTO();
     String jsonBody = objectMapper.writeValueAsString(productDTO);
 
     ResultActions resultActions =
@@ -117,7 +137,6 @@ public class ProductControllerIntegrationTest {
   @Test
   @WithMockUser(roles = "ADMIN")
   public void updateShouldReturnNotFoundWhenIdDoesNotExist() throws Exception {
-    ProductDTO productDTO = Factory.createProductDTO();
     String jsonBody = objectMapper.writeValueAsString(productDTO);
 
     ResultActions resultActions =
@@ -129,5 +148,41 @@ public class ProductControllerIntegrationTest {
                 .with(csrf()));
 
     resultActions.andExpect(status().isNotFound());
+  }
+
+  @Test
+  public void insertShouldReturnProductDTOCreatedWhenAdminLogged() throws Exception {
+    String jsonBody = objectMapper.writeValueAsString(productDTO);
+    adminToken = tokenUtil.obtainAccessToken(mockMvc, adminUsername, password);
+
+    ResultActions resultActions =
+        mockMvc.perform(
+            post("/products")
+                .header("Authorization", "Bearer " + adminToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonBody)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(csrf()));
+
+    resultActions.andExpect(status().isCreated());
+    resultActions.andExpect(jsonPath("$.id").exists());
+    resultActions.andExpect(jsonPath("$.name").value(productDTO.getName()));
+  }
+
+  @Test
+  public void insertShouldReturnExceptionWhenClientLogged() throws Exception {
+    String jsonBody = objectMapper.writeValueAsString(productDTO);
+    clientToken = tokenUtil.obtainAccessToken(mockMvc, clientUsername, password);
+
+    ResultActions resultActions =
+        mockMvc.perform(
+            post("/products")
+                .header("Authorization", "Bearer " + clientToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonBody)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(csrf()));
+
+    resultActions.andExpect(status().isForbidden());
   }
 }

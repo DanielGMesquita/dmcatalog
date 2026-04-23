@@ -26,17 +26,14 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class UserControllerIntegrationTest {
 
-  @Autowired
-  private MockMvc mockMvc;
+  @Autowired private MockMvc mockMvc;
 
-  @Autowired
-  private ObjectMapper objectMapper;
+  @Autowired private ObjectMapper objectMapper;
 
   private Long existingId;
   private Long nonExistingId;
   private Long countTotalUsers;
 
-  private User user;
   private UserDTO userDTO;
 
   @BeforeEach
@@ -44,15 +41,16 @@ public class UserControllerIntegrationTest {
     existingId = 1L; // Assume this ID exists in the test database
     nonExistingId = 1000L; // Assume this ID does not exist
     countTotalUsers = 2L; // Assume there are 25 users in total
-    user = Factory.createUser();
+    User user = Factory.createUser();
     userDTO = new UserDTO(user);
   }
 
   @Test
   @WithMockUser
   public void findAllShouldReturnSortedPageWhenSortByName() throws Exception {
-    ResultActions resultActions = mockMvc.perform(get("/users?page0&size=12&sort=firstName,asc")
-            .accept(MediaType.APPLICATION_JSON));
+    ResultActions resultActions =
+        mockMvc.perform(
+            get("/users?page0&size=12&sort=firstName,asc").accept(MediaType.APPLICATION_JSON));
 
     resultActions.andExpect(status().isOk());
     resultActions.andExpect(jsonPath("$.content").exists());
@@ -64,8 +62,8 @@ public class UserControllerIntegrationTest {
   @Test
   @WithMockUser(roles = "OPERATOR")
   public void findByIdShouldReturnUserWhenIdExists() throws Exception {
-    ResultActions resultActions = mockMvc.perform(get("/users/{id}", existingId)
-            .accept(MediaType.APPLICATION_JSON));
+    ResultActions resultActions =
+        mockMvc.perform(get("/users/{id}", existingId).accept(MediaType.APPLICATION_JSON));
 
     resultActions.andExpect(status().isOk());
     resultActions.andExpect(jsonPath("$.id").value(existingId));
@@ -77,11 +75,13 @@ public class UserControllerIntegrationTest {
   public void updateShouldReturnUserDTOWhenIdExists() throws Exception {
     String jsonBody = objectMapper.writeValueAsString(userDTO);
 
-    ResultActions resultActions = mockMvc.perform(put("/users/{id}", existingId)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(jsonBody)
-            .accept(MediaType.APPLICATION_JSON)
-            .with(csrf()));
+    ResultActions resultActions =
+        mockMvc.perform(
+            put("/users/{id}", existingId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonBody)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(csrf()));
 
     resultActions.andExpect(status().isOk());
     resultActions.andExpect(jsonPath("$.id").value(existingId));
@@ -93,11 +93,13 @@ public class UserControllerIntegrationTest {
   public void updateShouldReturnNotFoundWhenIdDoesNotExist() throws Exception {
     String jsonBody = objectMapper.writeValueAsString(userDTO);
 
-    ResultActions resultActions = mockMvc.perform(put("/users/{id}", nonExistingId)
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(jsonBody)
-            .accept(MediaType.APPLICATION_JSON)
-            .with(csrf()));
+    ResultActions resultActions =
+        mockMvc.perform(
+            put("/users/{id}", nonExistingId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonBody)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(csrf()));
 
     resultActions.andExpect(status().isNotFound());
   }
