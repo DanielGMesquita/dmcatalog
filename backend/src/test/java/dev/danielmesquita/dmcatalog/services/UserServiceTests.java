@@ -1,6 +1,5 @@
 package dev.danielmesquita.dmcatalog.services;
 
-import dev.danielmesquita.dmcatalog.dto.UserDTO;
 import dev.danielmesquita.dmcatalog.dto.UserInsertDTO;
 import dev.danielmesquita.dmcatalog.dto.UserUpdateDTO;
 import dev.danielmesquita.dmcatalog.entities.User;
@@ -10,6 +9,8 @@ import dev.danielmesquita.dmcatalog.services.exceptions.DatabaseException;
 import dev.danielmesquita.dmcatalog.services.exceptions.ResourceNotFoundException;
 import dev.danielmesquita.dmcatalog.utils.Factory;
 import jakarta.persistence.EntityNotFoundException;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,9 +24,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
-
-import java.util.List;
-import java.util.Optional;
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceTests {
@@ -50,8 +48,6 @@ public class UserServiceTests {
 
   private User user = new User();
 
-  private UserDTO userDTO;
-
   private UserInsertDTO userInsertDTO;
 
   private UserUpdateDTO userUpdateDTO;
@@ -62,7 +58,6 @@ public class UserServiceTests {
     dependentId = 2L;
     nonExistingId = 1000L;
     user = Factory.createUser();
-    userDTO = new UserDTO(user);
     userInsertDTO = new UserInsertDTO(user);
     userUpdateDTO = new UserUpdateDTO(user);
   }

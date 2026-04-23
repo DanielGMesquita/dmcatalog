@@ -41,7 +41,7 @@ public class Factory {
     user.setFirstName("John");
     user.setLastName("Doe");
     user.setEmail("mail@mail.com");
-    user.setPassword("123456");
+    user.setPassword("12345678A");
     user.getRoles().add(createRoleUser());
     user.getRoles().add(createRoleAdmin());
     return user;

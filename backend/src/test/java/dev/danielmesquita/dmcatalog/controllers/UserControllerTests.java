@@ -1,5 +1,9 @@
 package dev.danielmesquita.dmcatalog.controllers;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.danielmesquita.dmcatalog.dto.UserDTO;
 import dev.danielmesquita.dmcatalog.dto.UserInsertDTO;
@@ -10,6 +14,7 @@ import dev.danielmesquita.dmcatalog.services.UserService;
 import dev.danielmesquita.dmcatalog.services.exceptions.DatabaseException;
 import dev.danielmesquita.dmcatalog.services.exceptions.ResourceNotFoundException;
 import dev.danielmesquita.dmcatalog.utils.Factory;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
@@ -22,12 +27,6 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-
-import java.util.List;
-
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
  * Test class for the UserController, using MockMvc to simulate HTTP requests
@@ -82,7 +81,7 @@ public class UserControllerTests {
   @Test
   public void insertShouldReturnUserDTOCreated() throws Exception {
     Mockito.when(service.insert(userInsertDTO)).thenReturn(userDTO);
-    String jsonBody = objectMapper.writeValueAsString(userDTO);
+    String jsonBody = objectMapper.writeValueAsString(userInsertDTO);
 
     ResultActions resultActions =
             mockMvc
