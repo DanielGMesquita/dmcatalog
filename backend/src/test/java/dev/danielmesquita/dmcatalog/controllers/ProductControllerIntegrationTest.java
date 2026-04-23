@@ -188,6 +188,22 @@ public class ProductControllerIntegrationTest {
   }
 
   @Test
+  public void insertShouldReturnExceptionWhenInvalidToken() throws Exception {
+    String jsonBody = objectMapper.writeValueAsString(productDTO);
+
+    ResultActions resultActions =
+        mockMvc.perform(
+            post("/products")
+                .header("Authorization", "Bearer " + invalidToken)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonBody)
+                .accept(MediaType.APPLICATION_JSON)
+                .with(csrf()));
+
+    resultActions.andExpect(status().isUnauthorized());
+  }
+
+  @Test
   public void insertShouldReturnUnprocessableEntityWhenAdminLoggedAndInvalidName()
       throws Exception {
     productDTO.setName("ab");
